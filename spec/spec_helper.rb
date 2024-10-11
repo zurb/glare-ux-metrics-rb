@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "glare/ux-metrics/ux_metrics"
+require_relative "./glare/ux-metrics/ux_metrics"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
