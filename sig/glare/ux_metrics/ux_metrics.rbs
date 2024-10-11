@@ -2,6 +2,7 @@ module Glare
   module UxMetrics
     class Error < StandardError
     end
+
     module Sentiment
       class Data
         CHOICE_KEYS: Array[String]
@@ -17,14 +18,32 @@ module Glare
           def correct_data: -> String
         end
       end
+    end
 
-      class Result
-        attr_reader result: Float
-        attr_reader label: String
-        attr_reader threshold: String
+    module Feeling
+      class Data
+        CHOICE_KEYS: Array[String]
+        attr_reader choices: Hash[::Symbol | ::String, ::String | ::Float | ::Integer]
 
-        def initialize: (result: Float, label: String, threshold: String) -> void
+        def initialize: (choices: Hash[::Symbol | ::String, ::String | ::Float | ::Integer]) -> void
+
+        def valid?: -> bool
+
+        def parse: -> Result
+
+        class InvalidDataError < Error
+          def correct_data: -> String
+        end
       end
+    end
+
+
+    class Result
+      attr_reader result: Float
+      attr_reader label: String
+      attr_reader threshold: String
+
+      def initialize: (result: Float, label: String, threshold: String) -> void
     end
 
     VERSION: String
