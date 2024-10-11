@@ -93,9 +93,9 @@ module Glare
             choices[:somewhat_difficult].to_f -
             choices[:very_difficult].to_f
 
-          threshold = if result > 1.5
+          threshold = if result > 0.3
                         'positive'
-                      elsif result > 1.0
+                      elsif result > 0.1
                         'neutral'
                       else
                         'negative'
@@ -112,14 +112,11 @@ module Glare
           def correct_data
             {
               choices: {
-                helpful: "string|integer|float",
-                innovative: "string|integer|float",
-                simple: "string|integer|float",
-                joyful: "string|integer|float",
-                complicated: "string|integer|float",
-                confusing: "string|integer|float",
-                overwhelming: "string|integer|float",
-                annoying: "string|integer|float",
+                very_easy: "string|integer|float",
+                somewhat_easy: "string|integer|float",
+                neutral: "string|integer|float",
+                somewhat_difficult: "string|integer|float",
+                very_difficult: "string|integer|float"
               }
             }.to_json
           end
