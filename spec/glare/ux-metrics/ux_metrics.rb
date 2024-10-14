@@ -32,4 +32,71 @@ RSpec.describe Glare::UxMetrics do
       expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
     end
   end
+
+  describe Glare::UxMetrics::Feeling do
+    let(:feeling_data) do
+      {
+        very_easy: 0.3,
+        somewhat_easy: 0.4,
+        neutral: 0.1,
+        somewhat_difficult: 0.1,
+        very_difficult: 0.1
+      }
+    end
+
+    it "validates valid feeling data" do
+      data = Glare::UxMetrics::Feeling::Data.new(choices: feeling_data)
+      expect(data.valid?).to eq(true)
+    end
+
+    it "invalidates invalid feeling data" do
+      data = Glare::UxMetrics::Feeling::Data.new(choices: { helpful: 1 })
+      expect(data.valid?).to eq(false)
+    end
+
+    it "returns valid data" do
+      data = Glare::UxMetrics::Feeling::Data.new(choices: feeling_data).parse
+      expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
+    end
+  end
+
+  describe Glare::UxMetrics::Expectations do
+    let(:expectations_data) do
+      {
+        sentiment: {
+          positive: 0.5,
+          neutral: 0.3,
+          negative: 0.2
+        },
+        choices: {
+          matched_very_well: 0.3,
+          somewhat_matched: 0.4,
+          neutral: 0.1,
+          somewhat_didnt_match: 0.1,
+          didnt_match_at_all: 0.1,
+        }
+      }
+    end
+
+    it "validates valid expectations data" do
+      data = Glare::UxMetrics::Expectations::Data.new(
+        choices: expectations_data[:choices],
+        sentiment: expectations_data[:sentiment]
+      )
+      expect(data.valid?).to eq(true)
+    end
+
+    it "invalidates invalid expectations data" do
+      data = Glare::UxMetrics::Expectations::Data.new(choices: { helpful: 1 }, sentiment: { bla: "hi" })
+      expect(data.valid?).to eq(false)
+    end
+
+    it "returns valid data" do
+      data = Glare::UxMetrics::Expectations::Data.new(
+        choices: expectations_data[:choices],
+        sentiment: expectations_data[:sentiment]
+      ).parse
+      expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
+    end
+  end
 end

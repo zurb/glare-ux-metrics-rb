@@ -37,12 +37,16 @@ module Glare
       end
     end
 
-    module Feeling
+    module Expectations
       class Data
         CHOICE_KEYS: Array[String]
+        SENTIMENT_KEYS: Array[String]
         attr_reader choices: Hash[::Symbol | ::String, ::String | ::Float | ::Integer]
+        attr_reader sentiment: Hash[::Symbol | ::String, ::String | ::Float | ::Integer]
 
-        def initialize: (choices: Hash[::Symbol | ::String, ::String | ::Float | ::Integer]) -> void
+        def initialize: (
+            choices: Hash[::Symbol | ::String, ::String | ::Float | ::Integer],
+            sentiment: Hash[::Symbol | ::String, ::String | ::Float | ::Integer]) -> void
 
         def valid?: -> bool
 
