@@ -25,13 +25,13 @@ module Glare
 
         def parse
           result = choices[:helpful].to_f +
-            choices[:innovative].to_f +
-            choices[:simple].to_f +
-            choices[:joyful].to_f -
-            choices[:complicated].to_f -
-            choices[:confusing].to_f -
-            choices[:overwhelming].to_f -
-            choices[:annoying].to_f
+                   choices[:innovative].to_f +
+                   choices[:simple].to_f +
+                   choices[:joyful].to_f -
+                   choices[:complicated].to_f -
+                   choices[:confusing].to_f -
+                   choices[:overwhelming].to_f -
+                   choices[:annoying].to_f
 
           threshold = if result > 1.5
                         'positive'
@@ -88,10 +88,10 @@ module Glare
 
         def parse
           result = choices[:very_easy].to_f +
-            choices[:somewhat_easy].to_f -
-            choices[:neutral].to_f -
-            choices[:somewhat_difficult].to_f -
-            choices[:very_difficult].to_f
+                   choices[:somewhat_easy].to_f -
+                   choices[:neutral].to_f -
+                   choices[:somewhat_difficult].to_f -
+                   choices[:very_difficult].to_f
 
           threshold = if result > 0.3
                         'positive'
@@ -162,7 +162,7 @@ module Glare
           didnt_match_at_all = choices['didnt_match_at_all']
 
           result = (matched_very_well.to_f + somewhat_matched.to_f) -
-            (neutral_match.to_f + somewhat_didnt_match.to_f + didnt_match_at_all.to_f)
+                   (neutral_match.to_f + somewhat_didnt_match.to_f + didnt_match_at_all.to_f)
 
           threshold = if result > 0.3
                         'positive'
@@ -297,6 +297,69 @@ module Glare
                 somewhat_didnt_match: "string|integer|float",
                 didnt_match_at_all: "string|integer|float",
               }
+            }.to_json
+          end
+        end
+      end
+    end
+
+    module PostTaskSatisfaction
+      class Data
+        CHOICE_KEYS = %w[very_satisfied somewhat_satisfied neutral somewhat_dissatisfied very_dissatisfied].freeze
+
+        def initialize(choices:)
+          @choices = choices
+        end
+
+        attr_reader :choices
+
+        def valid?
+          return false unless choices.is_a?(Hash) && choices.size
+
+          missing_attributes = CHOICE_KEYS - choices.keys.map(&:to_s)
+          return false unless missing_attributes.empty?
+
+          true
+        end
+
+        def parse
+          result = choices[:very_satisfied].to_f +
+                   choices[:somewhat_satisfied].to_f -
+                   choices[:neutral].to_f -
+                   choices[:somewhat_dissatisfied].to_f -
+                   choices[:very_dissatisfied].to_f
+
+         threshold = if result >= 0.7
+                       'positive'
+                     elsif result > 0.5
+                       'neutral'
+                     else
+                       'negative'
+                     end
+
+          label = if threshold == 'positive'
+                    'High Satisfaction'
+                  elsif threshold == 'neutral'
+                    'Average Satisfaction'
+                  else
+                    'Low Satisfaction'
+                  end
+
+          Result.new(result: result, threshold: threshold, label: label)
+        end
+
+        class InvalidDataError < Error
+          def initialize(msg = "Data not valid. Correct data format is: \n\n#{correct_data}")
+            super(msg)
+          end
+
+          def correct_data
+            {
+              very_satisfied: "string|integer|float",
+              somewhat_satisfied: "string|integer|float",
+              neutral: "string|integer|float",
+              somewhat_dissatisfied: "string|integer|float",
+              very_dissatisfied: "string|integer|float",
             }.to_json
           end
         end

@@ -138,4 +138,35 @@ RSpec.describe Glare::UxMetrics do
       expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
     end
   end
+
+  describe Glare::UxMetrics::PostTaskSatisfaction do
+    let(:post_task_satisfaction_data) do
+      {
+        very_satisfied: 0.1,
+        somewhat_satisfied: 0.1,
+        neutral: 0.1,
+        somewhat_dissatisfied: 0.1,
+        very_dissatisfied: 0.1,
+      }
+    end
+
+    it "validates valid post-task satisfaction data" do
+      data = Glare::UxMetrics::PostTaskSatisfaction::Data.new(
+        choices: post_task_satisfaction_data,
+      )
+      expect(data.valid?).to eq(true)
+    end
+
+    it "invalidates invalid post-task satisfaction data" do
+      data = Glare::UxMetrics::PostTaskSatisfaction::Data.new(choices: { ha: "bla" })
+      expect(data.valid?).to eq(false)
+    end
+
+    it "returns valid data" do
+      data = Glare::UxMetrics::PostTaskSatisfaction::Data.new(
+        choices: post_task_satisfaction_data,
+      ).parse
+      expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
+    end
+  end
 end

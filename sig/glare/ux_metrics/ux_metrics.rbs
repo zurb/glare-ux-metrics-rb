@@ -79,6 +79,27 @@ module Glare
       end
     end
 
+    module PostTaskSatisfaction
+      class Data
+        CHOICE_KEYS: Array[String]
+        attr_reader choices: Hash[::Symbol | ::String, ::String | ::Float | ::Integer]
+
+        def initialize: (
+          choices: Hash[::Symbol | ::String, ::String | ::Float | ::Integer],
+        ) -> void
+
+        def valid?: -> bool
+
+        def parse: -> Result
+
+        def calculate_question: (Hash[::Symbol | ::String, ::String | ::Float | ::Integer]) -> float
+
+        class InvalidDataError < Error
+          def correct_data: -> String
+        end
+      end
+    end
+
 
     class Result
       attr_reader result: Float
