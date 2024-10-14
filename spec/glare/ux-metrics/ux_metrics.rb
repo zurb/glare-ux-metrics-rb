@@ -99,4 +99,43 @@ RSpec.describe Glare::UxMetrics do
       expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
     end
   end
+
+  describe Glare::UxMetrics::Desirability do
+    let(:desirability_data_section) do
+      {
+        very_interested: 0.3,
+        moderately_interested: 0.4,
+        slightly_interested: 0.2,
+        not_interested: 0.1
+      }
+    end
+
+    let(:desirability_data) do
+      [
+        desirability_data_section,
+        desirability_data_section,
+        desirability_data_section,
+        desirability_data_section,
+      ]
+    end
+
+    it "validates valid desirability data" do
+      data = Glare::UxMetrics::Desirability::Data.new(
+        questions: desirability_data
+      )
+      expect(data.valid?).to eq(true)
+    end
+
+    it "invalidates invalid desirability data" do
+      data = Glare::UxMetrics::Desirability::Data.new(questions: [{ bla: "hi" }])
+      expect(data.valid?).to eq(false)
+    end
+
+    it "returns valid data" do
+      data = Glare::UxMetrics::Desirability::Data.new(
+        questions: desirability_data,
+      ).parse(question_index: 1)
+      expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
+    end
+  end
 end

@@ -208,6 +208,101 @@ module Glare
       end
     end
 
+    module Desirability
+      class Data
+        CHOICE_KEYS = %w[very_interested moderately_interested slightly_interested not_interested].freeze
+
+        def initialize(questions:)
+          @questions = questions
+        end
+
+        attr_reader :questions
+
+        def valid?
+
+          if questions.is_a?(Array) && questions.size
+            is_invalid = false
+            questions.all? do |question|
+              missing_attributes = CHOICE_KEYS - question.keys.map(&:to_s)
+              is_invalid = true unless missing_attributes.empty?
+            end
+            return true unless is_invalid
+          end
+
+          false
+        end
+
+        def parse(question_index:)
+          scored_questions = []
+          questions.each_with_index do |question, index|
+            scored_questions.push({
+              score: calculate_question(question),
+              question: question,
+              selected: index == question_index
+            })
+          end
+
+          ordered_scored_questions = scored_questions.sort_by do |question|
+            question[:score]
+          end
+
+          ordered_scored_questions.each_with_index do |question, index|
+            # append :fraction property [whole number]/5
+
+            numerator = (index * ordered_scored_questions.length - 1).round
+            denominator = 5
+
+            question[:fraction] = "#{numerator}/#{denominator}"
+          end
+
+          selected_scored_question = ordered_scored_questions.find do |question|
+            question[:selected]
+          end
+
+          result = selected_scored_question[:score]
+
+          label = selected_scored_question[:fraction]
+
+          threshold = if %w[5/5 4/5].include? label
+                        'positive'
+                      elsif label == "3/5"
+                        'neutral'
+                      else
+                        'negative'
+                      end
+
+          Result.new(result: result, threshold: threshold, label: label)
+        end
+
+        def calculate_question(question)
+          question[:very_interested].to_f + question[:moderately_interested].to_f - question[:slightly_interested].to_f - question[:not_interested].to_f
+        end
+
+        class InvalidDataError < Error
+          def initialize(msg = "Data not valid. Correct data format is: \n\n#{correct_data}")
+            super(msg)
+          end
+
+          def correct_data
+            {
+              sentiment: {
+                positive: "string|integer|float",
+                neutral: "string|integer|float",
+                negative: "string|integer|float",
+              },
+              choices: {
+                matched_very_well: "string|integer|float",
+                somewhat_matched: "string|integer|float",
+                neutral: "string|integer|float",
+                somewhat_didnt_match: "string|integer|float",
+                didnt_match_at_all: "string|integer|float",
+              }
+            }.to_json
+          end
+        end
+      end
+    end
+
     class Result
       def initialize(result:, threshold:, label:)
         @result = result

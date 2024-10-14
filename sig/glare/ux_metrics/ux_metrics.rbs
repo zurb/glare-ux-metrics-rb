@@ -58,6 +58,27 @@ module Glare
       end
     end
 
+    module Desirability
+      class Data
+        CHOICE_KEYS: Array[String]
+        attr_reader questions: Array[Hash[::Symbol | ::String, ::String | ::Float | ::Integer]]
+
+        def initialize: (
+          questions: Array[Hash[::Symbol | ::String, ::String | ::Float | ::Integer]]
+        ) -> void
+
+        def valid?: -> bool
+
+        def parse: (question_index: Integer)-> Result
+
+        def calculate_question: (Hash[::Symbol | ::String, ::String | ::Float | ::Integer]) -> float
+
+        class InvalidDataError < Error
+          def correct_data: -> String
+        end
+      end
+    end
+
 
     class Result
       attr_reader result: Float
