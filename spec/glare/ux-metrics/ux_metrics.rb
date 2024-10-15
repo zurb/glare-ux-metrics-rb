@@ -169,4 +169,41 @@ RSpec.describe Glare::UxMetrics do
       expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
     end
   end
+
+  describe Glare::UxMetrics::BrandScore do
+    let(:brand_score_data) do
+      [
+        {
+          helpful: 0.1,
+          clear: 0.1,
+          engaging: 0.1,
+          motivating: 0.1,
+          skeptical: 0.1,
+          confusing: 0.1,
+          uninteresting: 0.1,
+          overwhelming: 0.1
+        },
+        [0.2, 0.3, 0.4, 0.4, 0.2, 0.2, 0.2, 0.2, 0.0],
+      ]
+    end
+
+    it "validates valid brand score data" do
+      data = Glare::UxMetrics::BrandScore::Parser.new(
+        questions: brand_score_data,
+      )
+      expect(data.valid?).to eq(true)
+    end
+
+    it "invalidates invalid brand score data" do
+      data = Glare::UxMetrics::BrandScore::Parser.new(questions: [{ hi: "yooo" }])
+      expect(data.valid?).to eq(false)
+    end
+
+    it "returns valid data" do
+      data = Glare::UxMetrics::BrandScore::Parser.new(
+        questions: brand_score_data,
+      ).parse
+      expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
+    end
+  end
 end
