@@ -3,7 +3,7 @@
 require_relative "lib/glare/ux-metrics/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "glare-ux-metrics-metrics-rb"
+  spec.name = "glare-ux-metrics-rb"
   spec.version = Glare::UxMetrics::VERSION
   spec.authors = ["Benjamin Scott"]
   spec.email = ["benjamin.scottt.dev@gmail.com"]
