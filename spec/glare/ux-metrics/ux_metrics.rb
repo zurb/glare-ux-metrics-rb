@@ -18,17 +18,17 @@ RSpec.describe Glare::UxMetrics do
     end
 
     it "validates valid sentiment data" do
-      data = Glare::UxMetrics::Sentiment::Data.new(choices: sentiment_data)
+      data = Glare::UxMetrics::Sentiment::Parser.new(choices: sentiment_data)
       expect(data.valid?).to eq(true)
     end
 
     it "invalidates invalid sentiment data" do
-      data = Glare::UxMetrics::Sentiment::Data.new(choices: { helpful: 1 })
+      data = Glare::UxMetrics::Sentiment::Parser.new(choices: { helpful: 1 })
       expect(data.valid?).to eq(false)
     end
 
     it "returns valid data" do
-      data = Glare::UxMetrics::Sentiment::Data.new(choices: sentiment_data).parse
+      data = Glare::UxMetrics::Sentiment::Parser.new(choices: sentiment_data).parse
       expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
     end
   end
@@ -45,17 +45,17 @@ RSpec.describe Glare::UxMetrics do
     end
 
     it "validates valid feeling data" do
-      data = Glare::UxMetrics::Feeling::Data.new(choices: feeling_data)
+      data = Glare::UxMetrics::Feeling::Parser.new(choices: feeling_data)
       expect(data.valid?).to eq(true)
     end
 
     it "invalidates invalid feeling data" do
-      data = Glare::UxMetrics::Feeling::Data.new(choices: { helpful: 1 })
+      data = Glare::UxMetrics::Feeling::Parser.new(choices: { helpful: 1 })
       expect(data.valid?).to eq(false)
     end
 
     it "returns valid data" do
-      data = Glare::UxMetrics::Feeling::Data.new(choices: feeling_data).parse
+      data = Glare::UxMetrics::Feeling::Parser.new(choices: feeling_data).parse
       expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
     end
   end
@@ -79,7 +79,7 @@ RSpec.describe Glare::UxMetrics do
     end
 
     it "validates valid expectations data" do
-      data = Glare::UxMetrics::Expectations::Data.new(
+      data = Glare::UxMetrics::Expectations::Parser.new(
         choices: expectations_data[:choices],
         sentiment: expectations_data[:sentiment]
       )
@@ -87,12 +87,12 @@ RSpec.describe Glare::UxMetrics do
     end
 
     it "invalidates invalid expectations data" do
-      data = Glare::UxMetrics::Expectations::Data.new(choices: { helpful: 1 }, sentiment: { bla: "hi" })
+      data = Glare::UxMetrics::Expectations::Parser.new(choices: { helpful: 1 }, sentiment: { bla: "hi" })
       expect(data.valid?).to eq(false)
     end
 
     it "returns valid data" do
-      data = Glare::UxMetrics::Expectations::Data.new(
+      data = Glare::UxMetrics::Expectations::Parser.new(
         choices: expectations_data[:choices],
         sentiment: expectations_data[:sentiment]
       ).parse
@@ -120,19 +120,19 @@ RSpec.describe Glare::UxMetrics do
     end
 
     it "validates valid desirability data" do
-      data = Glare::UxMetrics::Desirability::Data.new(
+      data = Glare::UxMetrics::Desirability::Parser.new(
         questions: desirability_data
       )
       expect(data.valid?).to eq(true)
     end
 
     it "invalidates invalid desirability data" do
-      data = Glare::UxMetrics::Desirability::Data.new(questions: [{ bla: "hi" }])
+      data = Glare::UxMetrics::Desirability::Parser.new(questions: [{ bla: "hi" }])
       expect(data.valid?).to eq(false)
     end
 
     it "returns valid data" do
-      data = Glare::UxMetrics::Desirability::Data.new(
+      data = Glare::UxMetrics::Desirability::Parser.new(
         questions: desirability_data,
       ).parse(question_index: 1)
       expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
@@ -151,19 +151,19 @@ RSpec.describe Glare::UxMetrics do
     end
 
     it "validates valid post-task satisfaction data" do
-      data = Glare::UxMetrics::PostTaskSatisfaction::Data.new(
+      data = Glare::UxMetrics::PostTaskSatisfaction::Parser.new(
         choices: post_task_satisfaction_data,
       )
       expect(data.valid?).to eq(true)
     end
 
     it "invalidates invalid post-task satisfaction data" do
-      data = Glare::UxMetrics::PostTaskSatisfaction::Data.new(choices: { ha: "bla" })
+      data = Glare::UxMetrics::PostTaskSatisfaction::Parser.new(choices: { ha: "bla" })
       expect(data.valid?).to eq(false)
     end
 
     it "returns valid data" do
-      data = Glare::UxMetrics::PostTaskSatisfaction::Data.new(
+      data = Glare::UxMetrics::PostTaskSatisfaction::Parser.new(
         choices: post_task_satisfaction_data,
       ).parse
       expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)

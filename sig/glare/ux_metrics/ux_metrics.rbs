@@ -4,7 +4,7 @@ module Glare
     end
 
     module Sentiment
-      class Data
+      class Parser
         CHOICE_KEYS: Array[String]
         attr_reader choices: Hash[::Symbol | ::String, ::String | ::Float | ::Integer]
 
@@ -21,7 +21,7 @@ module Glare
     end
 
     module Feeling
-      class Data
+      class Parser
         CHOICE_KEYS: Array[String]
         attr_reader choices: Hash[::Symbol | ::String, ::String | ::Float | ::Integer]
 
@@ -38,7 +38,7 @@ module Glare
     end
 
     module Expectations
-      class Data
+      class Parser
         CHOICE_KEYS: Array[String]
         SENTIMENT_KEYS: Array[String]
         attr_reader choices: Hash[::Symbol | ::String, ::String | ::Float | ::Integer]
@@ -59,7 +59,7 @@ module Glare
     end
 
     module Desirability
-      class Data
+      class Parser
         CHOICE_KEYS: Array[String]
         attr_reader questions: Array[Hash[::Symbol | ::String, ::String | ::Float | ::Integer]]
 
@@ -80,7 +80,7 @@ module Glare
     end
 
     module PostTaskSatisfaction
-      class Data
+      class Parser
         CHOICE_KEYS: Array[String]
         attr_reader choices: Hash[::Symbol | ::String, ::String | ::Float | ::Integer]
 

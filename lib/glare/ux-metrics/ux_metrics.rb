@@ -5,7 +5,7 @@ module Glare
     class Error < StandardError; end
 
     module Sentiment
-      class Data
+      class Parser
         CHOICE_KEYS = %w[helpful innovative simple complicated confusing overwhelming annoying].freeze
 
         def initialize(choices:)
@@ -68,7 +68,7 @@ module Glare
     end
 
     module Feeling
-      class Data
+      class Parser
         CHOICE_KEYS = %w[very_easy somewhat_easy neutral somewhat_difficult very_difficult].freeze
 
         def initialize(choices:)
@@ -125,7 +125,7 @@ module Glare
     end
 
     module Expectations
-      class Data
+      class Parser
         CHOICE_KEYS = %w[matched_very_well somewhat_matched neutral somewhat_didnt_match didnt_match_at_all].freeze
         SENTIMENT_KEYS = %w[positive neutral negative].freeze
         def initialize(choices:, sentiment:)
@@ -209,7 +209,7 @@ module Glare
     end
 
     module Desirability
-      class Data
+      class Parser
         CHOICE_KEYS = %w[very_interested moderately_interested slightly_interested not_interested].freeze
 
         def initialize(questions:)
@@ -304,7 +304,7 @@ module Glare
     end
 
     module PostTaskSatisfaction
-      class Data
+      class Parser
         CHOICE_KEYS = %w[very_satisfied somewhat_satisfied neutral somewhat_dissatisfied very_dissatisfied].freeze
 
         def initialize(choices:)
