@@ -119,6 +119,26 @@ module Glare
       end
     end
 
+    module Completion
+      class Parser
+        attr_reader direct_success: Float
+        attr_reader indirect_success: Float
+        attr_reader failed: Float
+
+        def initialize: (
+          direct_success: Float, indirect_success: Float, failed: Float
+        ) -> void
+
+        def valid?: -> bool
+
+        def parse: -> Result
+
+        class InvalidDataError < Error
+          def correct_data: -> String
+        end
+      end
+    end
+
     class Result
       attr_reader result: Float
       attr_reader label: String

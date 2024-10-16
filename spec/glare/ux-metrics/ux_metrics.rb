@@ -206,4 +206,37 @@ RSpec.describe Glare::UxMetrics do
       expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
     end
   end
+
+  describe Glare::UxMetrics::Completion do
+    let(:completion_data) do
+      {
+        direct_success: 0.5,
+        indirect_success: 0.3,
+        failed: 0.2
+      }
+    end
+
+    it "validates valid completion data" do
+      data = Glare::UxMetrics::Completion::Parser.new(
+        direct_success: completion_data[:direct_success],
+        indirect_success: completion_data[:indirect_success],
+        failed: completion_data[:failed],
+      )
+      expect(data.valid?).to eq(true)
+    end
+
+    it "invalidates invalid completion data" do
+      data = Glare::UxMetrics::Completion::Parser.new(direct_success: "yooo", indirect_success: "yooo", failed: "yooo")
+      expect(data.valid?).to eq(false)
+    end
+
+    it "returns valid data" do
+      data = Glare::UxMetrics::Completion::Parser.new(
+        direct_success: completion_data[:direct_success],
+        indirect_success: completion_data[:indirect_success],
+        failed: completion_data[:failed],
+      ).parse
+      expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
+    end
+  end
 end
