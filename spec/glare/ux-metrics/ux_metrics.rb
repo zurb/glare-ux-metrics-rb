@@ -239,4 +239,51 @@ RSpec.describe Glare::UxMetrics do
       expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
     end
   end
+
+  describe Glare::UxMetrics::Engagement do
+    let(:data) do
+      {
+        scores: {
+          direct_success: 0.5,
+          indirect_success: 0.3,
+          failed: 0.2
+        },
+        clicks: [
+          Glare::UxMetrics::ClickData.new(x_pos: 0.2, y_pos: 0.2, hotspot: 0),
+          Glare::UxMetrics::ClickData.new(x_pos: 0.2, y_pos: 0.2, hotspot: 0),
+          Glare::UxMetrics::ClickData.new(x_pos: 0.2, y_pos: 0.2, hotspot: 1),
+          Glare::UxMetrics::ClickData.new(x_pos: 0.2, y_pos: 0.2, hotspot: 1),
+          Glare::UxMetrics::ClickData.new(x_pos: 0.2, y_pos: 0.2, hotspot: 2),
+          Glare::UxMetrics::ClickData.new(x_pos: 0.2, y_pos: 0.2, hotspot: 2),
+          Glare::UxMetrics::ClickData.new(x_pos: 0.2, y_pos: 0.2, hotspot: 0),
+          Glare::UxMetrics::ClickData.new(x_pos: 0.2, y_pos: 0.2, hotspot: 0),
+          Glare::UxMetrics::ClickData.new(x_pos: 0.2, y_pos: 0.2, hotspot: 0),
+          Glare::UxMetrics::ClickData.new(x_pos: 0.2, y_pos: 0.2, hotspot: 0),
+          Glare::UxMetrics::ClickData.new(x_pos: 0.2, y_pos: 0.2, hotspot: 0),
+          Glare::UxMetrics::ClickData.new(x_pos: 0.2, y_pos: 0.2, hotspot: 0),
+        ]
+      }
+    end
+
+    it "validates valid engagement data" do
+      parser = Glare::UxMetrics::Engagement::Parser.new(
+        scores: data[:scores],
+        clicks: data[:clicks]
+      )
+      expect(parser.valid?).to eq(true)
+    end
+
+    it "invalidates invalid engagement data" do
+      parser = Glare::UxMetrics::Engagement::Parser.new(scores: { sup: "ooooo" }, clicks: [])
+      expect(parser.valid?).to eq(false)
+    end
+
+    it "returns valid data" do
+      parser = Glare::UxMetrics::Engagement::Parser.new(
+        scores: data[:scores],
+        clicks: data[:clicks]
+      ).parse
+      expect(parser.result.is_a?(Float) && parser.label.is_a?(String) && parser.threshold.is_a?(String)).to eq(true)
+    end
+  end
 end
