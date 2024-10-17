@@ -14,6 +14,12 @@ module Glare
 
         def parse: -> Result
 
+        @result: Float
+        def result: -> Float
+
+        @threshold: String
+        def threshold: -> String
+
         class InvalidDataError < Error
           def correct_data: -> String
         end
@@ -43,6 +49,8 @@ module Glare
         SENTIMENT_KEYS: Array[String]
         attr_reader choices: Hash[::Symbol | ::String, ::String | ::Float | ::Integer]
         attr_reader sentiment: Hash[::Symbol | ::String, ::String | ::Float | ::Integer]
+        attr_accessor result: Float
+        attr_accessor label: String
 
         def initialize: (
             choices: Hash[::Symbol | ::String, ::String | ::Float | ::Integer],

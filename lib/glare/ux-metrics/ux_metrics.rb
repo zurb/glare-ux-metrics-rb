@@ -24,24 +24,28 @@ module Glare
         end
 
         def parse
-          result = choices[:helpful].to_f +
-                   choices[:innovative].to_f +
-                   choices[:simple].to_f +
-                   choices[:joyful].to_f -
-                   choices[:complicated].to_f -
-                   choices[:confusing].to_f -
-                   choices[:overwhelming].to_f -
-                   choices[:annoying].to_f
-
-          threshold = if result > 1.5
-                        'positive'
-                      elsif result > 1.0
-                        'neutral'
-                      else
-                        'negative'
-                      end
-
           Result.new(result: result, threshold: threshold, label: threshold)
+        end
+
+        def result
+          @result ||= choices[:helpful].to_f +
+            choices[:innovative].to_f +
+            choices[:simple].to_f +
+            choices[:joyful].to_f -
+            choices[:complicated].to_f -
+            choices[:confusing].to_f -
+            choices[:overwhelming].to_f -
+            choices[:annoying].to_f
+        end
+
+        def threshold
+          @threshold ||= if result > 1.5
+                           "positive"
+                         elsif result > 1.0
+                           "neutral"
+                         else
+                           "negative"
+                         end
         end
 
         class InvalidDataError < Error
