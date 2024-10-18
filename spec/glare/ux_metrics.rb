@@ -68,6 +68,17 @@ RSpec.describe Glare::UxMetrics do
       expect(data.valid?).to eq(false)
     end
 
+    it "invalidates non float/integer-like values" do
+      data = Glare::UxMetrics::Feeling::Parser.new(choices: {
+        very_easy: 0.3,
+        somewhat_easy: 0.4,
+        neutral: 0.1,
+        somewhat_difficult: 0.1,
+        very_difficult: "hi"
+      })
+      expect(data.valid?).to eq(false)
+    end
+
     it "returns valid data" do
       data = Glare::UxMetrics::Feeling::Parser.new(choices: feeling_data).parse
       expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
