@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require_relative "lib/glare/ux-metrics/version"
+require_relative "lib/glare/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "glare-ux-metrics-rb"
+  spec.name = "glare-ux_metrics-rb"
   spec.version = Glare::UxMetrics::VERSION
   spec.authors = ["Benjamin Scott"]
   spec.email = ["benjamin.scottt.dev@gmail.com"]

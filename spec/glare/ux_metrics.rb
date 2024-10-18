@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../../lib/glare/ux-metrics/ux_metrics.rb"
+require_relative "../../lib/glare/ux_metrics"
 
 RSpec.describe Glare::UxMetrics do
   describe Glare::UxMetrics::Sentiment do

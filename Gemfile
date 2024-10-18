@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-# Specify your gem's dependencies in glare-ux-metrics-metrics-rb.gemspec
+# Specify your gem's dependencies in glare-ux_metrics-metrics-rb.gemspec
 gemspec
 
 gem "rake", "~> 13.0"
