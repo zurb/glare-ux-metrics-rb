@@ -601,9 +601,3 @@ module Glare
     end
   end
 end
-
-class String
-  def integer?
-
-  end
-end
