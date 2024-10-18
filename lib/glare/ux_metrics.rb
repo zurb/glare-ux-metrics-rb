@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "glare/util"
+
 module Glare
   module UxMetrics
     class Error < StandardError; end
@@ -21,7 +23,8 @@ module Glare
           return false unless missing_attributes.empty?
 
           return false unless choices.values.all? do |v|
-            return v.to_i.to_s == v || v.to_f.to_s == v if v.is_a?(String)
+            return Glare::Util.str_is_integer?(v) if v.is_a?(String)
+
             true
           end
 
@@ -596,5 +599,11 @@ module Glare
         hotspot > -1
       end
     end
+  end
+end
+
+class String
+  def integer?
+
   end
 end
