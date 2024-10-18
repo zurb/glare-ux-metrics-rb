@@ -22,6 +22,20 @@ RSpec.describe Glare::UxMetrics do
       expect(data.valid?).to eq(true)
     end
 
+    it "invalidates non float/integer-like values" do
+      data = Glare::UxMetrics::Sentiment::Parser.new(choices: {
+        helpful: 0.1,
+        innovative: 0.1,
+        simple: 0.1,
+        joyful: 0.1,
+        complicated: 0.1,
+        confusing: 0.1,
+        overwhelming: 0.1,
+        annoying: "hi"
+      })
+      expect(data.valid?).to eq(false)
+    end
+
     it "invalidates invalid sentiment data" do
       data = Glare::UxMetrics::Sentiment::Parser.new(choices: { helpful: 1 })
       expect(data.valid?).to eq(false)

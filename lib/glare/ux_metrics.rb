@@ -15,12 +15,17 @@ module Glare
         attr_reader :choices
 
         def valid?
-          if choices.is_a?(Hash) && choices.size
-            missing_attributes = CHOICE_KEYS - choices.keys.map(&:to_s)
-            return true if missing_attributes.empty?
+          return false unless choices.is_a?(Hash) && choices.size
+
+          missing_attributes = CHOICE_KEYS - choices.keys.map(&:to_s)
+          return false unless missing_attributes.empty?
+
+          return false unless choices.values.all? do |v|
+            return v.to_i.to_s == v || v.to_f.to_s == v if v.is_a?(String)
+            true
           end
 
-          false
+          true
         end
 
         def parse
