@@ -25,7 +25,7 @@ module Glare
           return false unless choices.values.all? do |v|
             return Glare::Util.str_is_integer?(v) if v.is_a?(String)
 
-            true
+            true if v.is_a?(Float) || v.is_a?(Integer)
           end
 
           true
@@ -237,17 +237,36 @@ module Glare
         attr_reader :questions
 
         def valid?
+          return false unless questions.is_a?(Array) && questions.size
 
-          if questions.is_a?(Array) && questions.size
-            is_invalid = false
-            questions.all? do |question|
+          return false unless questions.all? do |question|
+            if question.is_a?(Hash)
               missing_attributes = CHOICE_KEYS - question.keys.map(&:to_s)
-              is_invalid = true unless missing_attributes.empty?
+              return false unless missing_attributes.empty?
+
+              question.values.all? do |v|
+                return Glare::Util.str_is_integer?(v) if v.is_a?(String)
+
+                (v.is_a?(Integer) || v.is_a?(Float))
+              end
+
+              true
+            elsif question.is_a?(Array)
+              return false unless question.size == 10
+
+              return false unless question.all? do |v|
+                return Glare::Util.str_is_integer?(v) if v.is_a?(String)
+
+                (v.is_a?(Integer) || v.is_a?(Float))
+              end
+
+              true
+            else
+              false
             end
-            return true unless is_invalid
           end
 
-          false
+          true
         end
 
         def parse(question_index:)
