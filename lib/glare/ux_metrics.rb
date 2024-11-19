@@ -80,9 +80,19 @@ module Glare
     end
 
     module Feeling
+      # Run Glare::UxMetrics::Feeling::Parser.new({...}) to create a parser
       class Parser
         CHOICE_KEYS = %w[very_easy somewhat_easy neutral somewhat_difficult very_difficult].freeze
 
+        # @example Create a parser
+        #   data = {
+        #     very_easy: 0.4,
+        #     somewhat_easy: 0.2,
+        #     neutral: 0.1,
+        #     somewhat_difficult: 0.05,
+        #     very_difficult: 0.0
+        #   }
+        #   Glare::UxMetrics::Feeling::Parser.new(data)
         def initialize(choices:)
           @choices = choices
         end
@@ -111,15 +121,24 @@ module Glare
                    choices[:somewhat_difficult].to_f -
                    choices[:very_difficult].to_f
 
+
           threshold = if result > 0.3
-                        'positive'
+                        "positive"
                       elsif result > 0.1
-                        'neutral'
+                        "neutral"
                       else
-                        'negative'
+                        "negative"
                       end
 
-          Result.new(result: result, threshold: threshold, label: threshold)
+          label = if threshold == "positive"
+                    "High Sentiment"
+                  elsif threshold == "neutral"
+                    "Avg Sentiment"
+                  else
+                    "Low Sentiment"
+                  end
+
+          Result.new(result: result, threshold: threshold, label: label)
         end
 
         class InvalidDataError < Error
@@ -169,30 +188,30 @@ module Glare
         end
 
         def parse
-          positive = sentiment['positive']
-          neutral = sentiment['neutral']
-          negative = sentiment['negative']
+          positive = sentiment["positive"]
+          neutral = sentiment["neutral"]
+          negative = sentiment["negative"]
 
-          matched_very_well = choices['matched_very_well']
-          somewhat_matched = choices['somewhat_matched']
-          neutral_match = choices['neutral']
-          somewhat_didnt_match = choices['somewhat_didnt_match']
-          didnt_match_at_all = choices['didnt_match_at_all']
+          matched_very_well = choices["matched_very_well"]
+          somewhat_matched = choices["somewhat_matched"]
+          neutral_match = choices["neutral"]
+          somewhat_didnt_match = choices["somewhat_didnt_match"]
+          didnt_match_at_all = choices["didnt_match_at_all"]
 
           result = (matched_very_well.to_f + somewhat_matched.to_f) -
                    (neutral_match.to_f + somewhat_didnt_match.to_f + didnt_match_at_all.to_f)
 
           threshold = if result > 0.3
-                        'positive'
+                        "positive"
                       elsif result > 0.1
-                        'neutral'
+                        "neutral"
                       else
-                        'negative'
+                        "negative"
                       end
 
-          label = if threshold == 'positive'
+          label = if threshold == "positive"
                     "High Expectations"
-                  elsif threshold == 'neutral'
+                  elsif threshold == "neutral"
                     "Met Expectations"
                   else
                     "Failed Expectations"
@@ -301,11 +320,11 @@ module Glare
           label = selected_scored_question[:fraction]
 
           threshold = if %w[5/5 4/5].include? label
-                        'positive'
+                        "positive"
                       elsif label == "3/5"
-                        'neutral'
+                        "neutral"
                       else
-                        'negative'
+                        "negative"
                       end
 
           Result.new(result: result, threshold: threshold, label: label)
@@ -356,6 +375,12 @@ module Glare
           missing_attributes = CHOICE_KEYS - choices.keys.map(&:to_s)
           return false unless missing_attributes.empty?
 
+          return false unless choices.values.all? do |v|
+            return Glare::Util.str_is_integer?(v) if v.is_a?(String)
+
+            true if v.is_a?(Float) || v.is_a?(Integer)
+          end
+
           true
         end
 
@@ -367,19 +392,19 @@ module Glare
                    choices[:very_dissatisfied].to_f
 
          threshold = if result >= 0.7
-                       'positive'
+                       "positive"
                      elsif result > 0.5
-                       'neutral'
+                       "neutral"
                      else
-                       'negative'
+                       "negative"
                      end
 
-          label = if threshold == 'positive'
-                    'High Satisfaction'
-                  elsif threshold == 'neutral'
-                    'Average Satisfaction'
+          label = if threshold == "positive"
+                    "High Satisfaction"
+                  elsif threshold == "neutral"
+                    "Average Satisfaction"
                   else
-                    'Low Satisfaction'
+                    "Low Satisfaction"
                   end
 
           Result.new(result: result, threshold: threshold, label: label)
@@ -600,6 +625,84 @@ module Glare
         end
       end
     end
+
+    module Frequency
+      class Parser
+        CHOICE_KEYS = %w[very_frequently frequently occasionally rarely].freeze
+
+        def initialize(choices:)
+          @choices = choices
+        end
+
+        attr_reader :choices
+
+        def valid?
+          return false unless choices.is_a?(Hash) && choices.size
+
+          missing_attributes = CHOICE_KEYS - choices.keys.map(&:to_s)
+          return false unless missing_attributes.empty?
+
+          return false unless choices.values.all? do |v|
+            return Glare::Util.str_is_integer?(v) if v.is_a?(String)
+
+            return true if v.is_a?(Float) || v.is_a?(Integer)
+
+            false
+          end
+
+          true
+        end
+
+        def parse
+          Result.new(result: result, threshold: threshold, label: label)
+        end
+
+        def result
+          @result ||= choices[:very_frequently].to_f +
+            choices[:frequently].to_f -
+            choices[:occasionally].to_f -
+            choices[:rarely].to_f
+        end
+
+        def threshold
+          @threshold ||= if result > 0.3
+                           "positive"
+                         elsif result >= 0.1
+                           "neutral"
+                         else
+                           "negative"
+                         end
+        end
+
+        def label
+          @label ||= if threshold == "positive"
+                       "High"
+                     elsif threshold == "neutral"
+                       "Avg"
+                     else
+                       "Low"
+                     end
+        end
+
+        class InvalidDataError < Error
+          def initialize(msg = "Data not valid. Correct data format is: \n\n#{correct_data}")
+            super(msg)
+          end
+
+          def correct_data
+            {
+              choices: {
+                very_frequently: "string|integer|float",
+                frequently: "string|integer|float",
+                occasionally: "string|integer|float",
+                rarely: "string|integer|float",
+              }
+            }.to_json
+          end
+        end
+      end
+    end
+
 
     class Result
       def initialize(result:, threshold:, label:)
