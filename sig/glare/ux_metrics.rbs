@@ -196,6 +196,8 @@ module Glare
       attr_reader threshold: String
 
       def initialize: (result: Float, label: String, threshold: String) -> void
+
+      def self.default: () -> Result
     end
 
     class ClickData

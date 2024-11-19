@@ -711,6 +711,10 @@ module Glare
         @label = label
       end
 
+      def self.default
+        Result.new(result: 0.0, threshold: "", label: "")
+      end
+
       attr_reader :result, :threshold, :label
     end
 

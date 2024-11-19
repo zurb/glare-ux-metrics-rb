@@ -311,4 +311,14 @@ RSpec.describe Glare::UxMetrics do
       expect(parser.result.is_a?(Float) && parser.label.is_a?(String) && parser.threshold.is_a?(String)).to eq(true)
     end
   end
+
+  describe Glare::UxMetrics::Result do
+    it "returns a valid default" do
+      result = Glare::UxMetrics::Result.default
+      expect(result).to be_a(Glare::UxMetrics::Result)
+      expect(result.result).to eq(0.0)
+      expect(result.threshold.empty?).to eq(true)
+      expect(result.label.empty?).to eq(true)
+    end
+  end
 end
