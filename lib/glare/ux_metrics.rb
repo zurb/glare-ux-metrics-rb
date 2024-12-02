@@ -7,9 +7,22 @@ module Glare
     class Error < StandardError; end
 
     module Sentiment
+      # Run Glare::UxMetrics::Sentiment::Parser.new({...}) to create a parser
       class Parser
-        CHOICE_KEYS = %w[helpful innovative simple complicated confusing overwhelming annoying].freeze
+        CHOICE_KEYS = %w[helpful innovative simple joyful complicated confusing overwhelming annoying].freeze
 
+        # @example Create a parser
+        #   data = {
+        #     helpful: 0.4,
+        #     innovative: 0.2,
+        #     joyful: 0.0,
+        #     simple: 0.1,
+        #     complicated: 0.05,
+        #     confusing: 0.0,
+        #     overwhelming: 0.0,
+        #     annoying: 0.0
+        #   }
+        #   Glare::UxMetrics::Feeling::Parser.new(data)
         def initialize(choices:)
           @choices = choices
         end
@@ -37,13 +50,13 @@ module Glare
 
         def result
           @result ||= choices[:helpful].to_f +
-            choices[:innovative].to_f +
-            choices[:simple].to_f +
-            choices[:joyful].to_f -
-            choices[:complicated].to_f -
-            choices[:confusing].to_f -
-            choices[:overwhelming].to_f -
-            choices[:annoying].to_f
+                      choices[:innovative].to_f +
+                      choices[:simple].to_f +
+                      choices[:joyful].to_f -
+                      choices[:complicated].to_f -
+                      choices[:confusing].to_f -
+                      choices[:overwhelming].to_f -
+                      choices[:annoying].to_f
         end
 
         def threshold
@@ -82,15 +95,18 @@ module Glare
     module Feeling
       # Run Glare::UxMetrics::Feeling::Parser.new({...}) to create a parser
       class Parser
-        CHOICE_KEYS = %w[very_easy somewhat_easy neutral somewhat_difficult very_difficult].freeze
+        CHOICE_KEYS = %w[anticipation surprise joy trust anger disgust sadness fear].freeze
 
         # @example Create a parser
         #   data = {
-        #     very_easy: 0.4,
-        #     somewhat_easy: 0.2,
-        #     neutral: 0.1,
-        #     somewhat_difficult: 0.05,
-        #     very_difficult: 0.0
+        #     anticipation: 0.4,
+        #     surprise: 0.2,
+        #     joy: 0.1,
+        #     trust: 0.05,
+        #     anger: 0.02,
+        #     disgust: 0.0,
+        #     sadness: 0.0,
+        #     fear: 0.0
         #   }
         #   Glare::UxMetrics::Feeling::Parser.new(data)
         def initialize(choices:)
@@ -115,30 +131,38 @@ module Glare
         end
 
         def parse
-          result = choices[:very_easy].to_f +
-                   choices[:somewhat_easy].to_f -
-                   choices[:neutral].to_f -
-                   choices[:somewhat_difficult].to_f -
-                   choices[:very_difficult].to_f
-
-
-          threshold = if result > 0.3
-                        "positive"
-                      elsif result > 0.1
-                        "neutral"
-                      else
-                        "negative"
-                      end
-
-          label = if threshold == "positive"
-                    "High Sentiment"
-                  elsif threshold == "neutral"
-                    "Avg Sentiment"
-                  else
-                    "Low Sentiment"
-                  end
-
           Result.new(result: result, threshold: threshold, label: label)
+        end
+
+        def result
+          @result ||= choices[:anticipation].to_f +
+                      choices[:surprise].to_f +
+                      choices[:joy].to_f +
+                      choices[:trust].to_f -
+                      choices[:anger].to_f -
+                      choices[:disgust].to_f -
+                      choices[:sadness].to_f -
+                      choices[:fear].to_f
+        end
+
+        def threshold
+          @threshold ||= if result > 0.3
+                           "positive"
+                         elsif result > 0.1
+                           "neutral"
+                         else
+                           "negative"
+                         end
+        end
+
+        def label
+          @label ||= if threshold == "positive"
+                       "High Sentiment"
+                     elsif threshold == "neutral"
+                       "Avg Sentiment"
+                     else
+                       "Low Sentiment"
+                     end
         end
 
         class InvalidDataError < Error
@@ -462,13 +486,13 @@ module Glare
         def parse
           choices = questions.first
           result = choices[:helpful].to_f +
-            choices[:clear].to_f +
-            choices[:engaging].to_f +
-            choices[:motivating].to_f -
-            choices[:skeptical].to_f -
-            choices[:confusing].to_f -
-            choices[:uninteresting].to_f -
-            choices[:overwhelming].to_f
+                   choices[:clear].to_f +
+                   choices[:engaging].to_f +
+                   choices[:motivating].to_f -
+                   choices[:skeptical].to_f -
+                   choices[:confusing].to_f -
+                   choices[:uninteresting].to_f -
+                   choices[:overwhelming].to_f
 
           sentiment_status = if result > 1.5
                                "positive"
@@ -659,9 +683,9 @@ module Glare
 
         def result
           @result ||= choices[:very_frequently].to_f +
-            choices[:frequently].to_f -
-            choices[:occasionally].to_f -
-            choices[:rarely].to_f
+                      choices[:frequently].to_f -
+                      choices[:occasionally].to_f -
+                      choices[:rarely].to_f
         end
 
         def threshold

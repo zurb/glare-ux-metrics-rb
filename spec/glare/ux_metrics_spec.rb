@@ -50,11 +50,14 @@ RSpec.describe Glare::UxMetrics do
   describe Glare::UxMetrics::Feeling do
     let(:feeling_data) do
       {
-        very_easy: 0.3,
-        somewhat_easy: 0.4,
-        neutral: 0.1,
-        somewhat_difficult: 0.1,
-        very_difficult: 0.1
+        anticipation: 0.4,
+        surprise: 0.2,
+        joy: 0.1,
+        trust: 0.05,
+        anger: 0.02,
+        disgust: 0.0,
+        sadness: 0.0,
+        fear: 0.0
       }
     end
 

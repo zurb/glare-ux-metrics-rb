@@ -37,6 +37,15 @@ module Glare
 
         def parse: -> Result
 
+        @result: Float
+        def result: -> Float
+
+        @threshold: String
+        def threshold: -> String
+
+        @label: String
+        def label: -> String
+
         class InvalidDataError < Error
           def correct_data: -> String
         end

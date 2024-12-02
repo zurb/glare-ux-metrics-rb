@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    glare-ux-metrics-rb (0.2.5)
+    glare-ux-metrics-rb (0.2.7)
 
 GEM
   remote: https://rubygems.org/
