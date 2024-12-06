@@ -135,9 +135,7 @@ module Glare
         end
 
         def result
-          @result ||= choices[:anticipation].to_f +
-                      choices[:surprise].to_f +
-                      choices[:joy].to_f +
+          @result ||= choices[:joy].to_f +
                       choices[:trust].to_f -
                       choices[:anger].to_f -
                       choices[:disgust].to_f -
