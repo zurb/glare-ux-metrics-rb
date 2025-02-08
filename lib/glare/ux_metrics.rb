@@ -327,7 +327,7 @@ module Glare
           ordered_scored_questions.each_with_index do |question, index|
             # append :fraction property [whole number]/5
 
-            numerator = (index * ordered_scored_questions.length - 1).round
+            numerator = (((index + 1) / questions.length.to_f) * 5).round
             denominator = 5
 
             question[:fraction] = "#{numerator}/#{denominator}"
