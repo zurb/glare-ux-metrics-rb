@@ -353,7 +353,11 @@ module Glare
         end
 
         def calculate_question(question)
-          question[:very_interested].to_f + question[:moderately_interested].to_f - question[:slightly_interested].to_f - question[:not_interested].to_f
+          if question.is_a? Hash
+            question[:very_interested].to_f + question[:moderately_interested].to_f - question[:slightly_interested].to_f - question[:not_interested].to_f
+          else
+            question[0].to_f + question[1].to_f - question[4].to_f - question[5].to_f - question[6].to_f - question[7].to_f - question[8].to_f - question[9].to_f
+          end
         end
 
         class InvalidDataError < Error

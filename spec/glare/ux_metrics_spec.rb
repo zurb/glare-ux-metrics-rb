@@ -147,23 +147,59 @@ RSpec.describe Glare::UxMetrics do
       ]
     end
 
-    it "validates valid desirability data" do
-      data = Glare::UxMetrics::Desirability::Parser.new(
-        questions: desirability_data
-      )
-      expect(data.valid?).to eq(true)
+    let(:desirability_data_as_nps_section) do
+      [20, 50, 30, 50, 5, 0, 0, 0, 10, 5]
     end
 
-    it "invalidates invalid desirability data" do
-      data = Glare::UxMetrics::Desirability::Parser.new(questions: [{ bla: "hi" }])
-      expect(data.valid?).to eq(false)
+    let(:desirability_data_as_nps) do
+      [
+        desirability_data_as_nps_section,
+        desirability_data_as_nps_section,
+        desirability_data_as_nps_section,
+        desirability_data_as_nps_section,
+      ]
     end
 
-    it "returns valid data" do
-      data = Glare::UxMetrics::Desirability::Parser.new(
-        questions: desirability_data,
-      ).parse(question_index: 1)
-      expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
+    context "Multiple Choice" do
+      it "validates valid desirability data" do
+        data = Glare::UxMetrics::Desirability::Parser.new(
+          questions: desirability_data
+        )
+        expect(data.valid?).to eq(true)
+      end
+
+      it "invalidates invalid desirability data" do
+        data = Glare::UxMetrics::Desirability::Parser.new(questions: [{ bla: "hi" }])
+        expect(data.valid?).to eq(false)
+      end
+
+      it "returns valid data" do
+        data = Glare::UxMetrics::Desirability::Parser.new(
+          questions: desirability_data,
+        ).parse(question_index: 1)
+        expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
+      end
+    end
+
+    context "NPS" do
+      it "validates valid desirability data" do
+        data = Glare::UxMetrics::Desirability::Parser.new(
+          questions: desirability_data_as_nps
+        )
+        expect(data.valid?).to eq(true)
+      end
+
+      it "invalidates invalid desirability data" do
+        data = Glare::UxMetrics::Desirability::Parser.new(questions: [[0, 2]])
+        expect(data.valid?).to eq(false)
+      end
+
+      it "returns valid data" do
+        data = Glare::UxMetrics::Desirability::Parser.new(
+          questions: desirability_data_as_nps
+        ).parse(question_index: 1)
+        expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
+      end
     end
   end
 
