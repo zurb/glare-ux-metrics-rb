@@ -326,11 +326,23 @@ module Glare
 
           ordered_scored_questions.each_with_index do |question, index|
             # append :fraction property [whole number]/5
+            prev_index = index - 1
+            prev_question = ordered_scored_questions[prev_index]
 
-            numerator = (((index + 1) / questions.length.to_f) * 5).round
-            denominator = 5
+            same_as_prev = if prev_question.nil?
+                             false
+                           else
+                             prev_question[:score] == question[:score]
+                           end
 
-            question[:fraction] = "#{numerator}/#{denominator}"
+            if same_as_prev && !prev_question[:fraction].nil?
+              question[:fraction] = prev_question[:fraction]
+            else
+              numerator = (((index + 1) / questions.length.to_f) * 5).round
+              denominator = 5
+
+              question[:fraction] = "#{numerator}/#{denominator}"
+            end
           end
 
           selected_scored_question = ordered_scored_questions.find do |question|

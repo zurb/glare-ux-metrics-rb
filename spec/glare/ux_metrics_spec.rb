@@ -148,15 +148,32 @@ RSpec.describe Glare::UxMetrics do
     end
 
     let(:desirability_data_as_nps_section) do
-      [20, 50, 30, 50, 5, 0, 0, 0, 10, 5]
+      [20, 30, 30, 50, 5, 0, 0, 0, 10, 5]
+    end
+
+    let(:desirability_data_as_nps_section_2) do
+      [20, 30, 30, 50, 5, 0, 0, 0, 10, 5]
+    end
+
+    let(:desirability_data_as_nps_section_3) do
+      [20, 30, 30, 50, 5, 0, 0, 0, 10, 5]
+    end
+
+    let(:desirability_data_as_nps_section_4) do
+      [30, 30, 30, 50, 5, 0, 0, 0, 10, 10]
+    end
+
+    let(:desirability_data_as_nps_section_5) do
+      [30, 30, 30, 50, 5, 0, 0, 0, 10, 10]
     end
 
     let(:desirability_data_as_nps) do
       [
         desirability_data_as_nps_section,
-        desirability_data_as_nps_section,
-        desirability_data_as_nps_section,
-        desirability_data_as_nps_section,
+        desirability_data_as_nps_section_2,
+        desirability_data_as_nps_section_3,
+        desirability_data_as_nps_section_4,
+        desirability_data_as_nps_section_5
       ]
     end
 
@@ -175,7 +192,7 @@ RSpec.describe Glare::UxMetrics do
 
       it "returns valid data" do
         data = Glare::UxMetrics::Desirability::Parser.new(
-          questions: desirability_data,
+          questions: desirability_data
         ).parse(question_index: 1)
         expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
       end
@@ -199,6 +216,35 @@ RSpec.describe Glare::UxMetrics do
           questions: desirability_data_as_nps
         ).parse(question_index: 1)
         expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
+      end
+
+      it "uses the same label if the score is the same" do
+        data = Glare::UxMetrics::Desirability::Parser.new(
+          questions: desirability_data_as_nps
+        ).parse(question_index: 0)
+        data2 = Glare::UxMetrics::Desirability::Parser.new(
+          questions: desirability_data_as_nps
+        ).parse(question_index: 1)
+
+        expect(data.label == data2.label).to eq(true)
+
+        data3 = Glare::UxMetrics::Desirability::Parser.new(
+          questions: desirability_data_as_nps
+        ).parse(question_index: 3)
+        data4 = Glare::UxMetrics::Desirability::Parser.new(
+          questions: desirability_data_as_nps
+        ).parse(question_index: 4)
+
+        expect(data3.label == data4.label).to eq(true)
+
+        data5 = Glare::UxMetrics::Desirability::Parser.new(
+          questions: desirability_data_as_nps
+        ).parse(question_index: 2)
+        data6 = Glare::UxMetrics::Desirability::Parser.new(
+          questions: desirability_data_as_nps
+        ).parse(question_index: 3)
+
+        expect(data6.label == data5.label).to eq(false)
       end
     end
   end
