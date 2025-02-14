@@ -167,13 +167,18 @@ RSpec.describe Glare::UxMetrics do
       [30, 30, 30, 50, 5, 0, 0, 0, 10, 10]
     end
 
+    let(:desirability_data_as_nps_section_6) do
+      [0, 0, 30, 50, 5, 0, 0, 0, 10, 10]
+    end
+
     let(:desirability_data_as_nps) do
       [
         desirability_data_as_nps_section,
         desirability_data_as_nps_section_2,
         desirability_data_as_nps_section_3,
         desirability_data_as_nps_section_4,
-        desirability_data_as_nps_section_5
+        desirability_data_as_nps_section_5,
+        desirability_data_as_nps_section_6
       ]
     end
 
@@ -245,6 +250,14 @@ RSpec.describe Glare::UxMetrics do
         ).parse(question_index: 3)
 
         expect(data6.label == data5.label).to eq(false)
+      end
+
+      it "returns 0/5 if there are no promoters" do
+        data = Glare::UxMetrics::Desirability::Parser.new(
+          questions: desirability_data_as_nps
+        ).parse(question_index: 5)
+
+        expect(data.label).to eq("0/5")
       end
     end
   end

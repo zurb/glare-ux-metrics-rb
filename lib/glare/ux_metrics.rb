@@ -309,15 +309,24 @@ module Glare
 
           true
         end
+        
+        def no_promoters_for_question?(question)
+          if question.is_a?(Array)
+            (question[0] + question[1]).zero?
+          elsif question.is_a?(Hash)
+            (question[:very_interested].to_f + question[:moderately_interested].to_f).zero?
+          end
+        end
 
         def parse(question_index:)
           scored_questions = []
           questions.each_with_index do |question, index|
             scored_questions.push({
-              score: calculate_question(question),
-              question: question,
-              selected: index == question_index
-            })
+                                    score: calculate_question(question),
+                                    no_promoters: no_promoters_for_question?(question),
+                                    question: question,
+                                    selected: index == question_index
+                                  })
           end
 
           ordered_scored_questions = scored_questions.sort_by do |question|
@@ -326,6 +335,8 @@ module Glare
 
           ordered_scored_questions.each_with_index do |question, index|
             # append :fraction property [whole number]/5
+            next question[:fraction] = "0/5" if question[:no_promoters]
+
             prev_index = index - 1
             prev_question = ordered_scored_questions[prev_index]
 
@@ -611,7 +622,7 @@ module Glare
         attr_reader :scores, :clicks
 
         def valid?
-          return false unless scores.is_a?(Hash) && clicks.is_a?(Array) && scores.keys.size > 0 && clicks.size > 0
+          return false unless scores.is_a?(Hash) && clicks.is_a?(Array) && scores.keys.size.positive? && clicks.size.positive?
 
           true
         end

@@ -84,6 +84,8 @@ module Glare
           questions: Array[Hash[::Symbol | ::String, ::String | ::Float | ::Integer] | Array[::String | ::Float | ::Integer]]
         ) -> void
 
+        def no_promoters_for_question?: -> bool
+
         def valid?: -> bool
 
         def parse: (question_index: Integer)-> Result
