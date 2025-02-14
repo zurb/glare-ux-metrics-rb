@@ -148,31 +148,31 @@ RSpec.describe Glare::UxMetrics do
     end
 
     let(:desirability_data_as_nps_section) do
-      [20, 30, 30, 50, 5, 0, 0, 0, 10, 5]
+      [0.20, 0.30, 0.30, 0.5, 0.05, 0, 0, 0, 0.1, 0.05]
     end
 
     let(:desirability_data_as_nps_section_2) do
-      [20, 30, 30, 50, 5, 0, 0, 0, 10, 5]
+      [0.20, 0.30, 0.30, 0.50, 0.05, 0, 0, 0, 0.1, 0.05]
     end
 
     let(:desirability_data_as_nps_section_3) do
-      [20, 30, 30, 50, 5, 0, 0, 0, 10, 5]
+      [0.20, 0.30, 0.30, 0.50, 0.05, 0, 0, 0, 0.1, 0.05]
     end
 
     let(:desirability_data_as_nps_section_4) do
-      [30, 30, 30, 50, 5, 0, 0, 0, 10, 10]
+      [0.3, 0.3, 0.3, 0.5, 0.05, 0, 0, 0, 0.1, 0.1]
     end
 
     let(:desirability_data_as_nps_section_5) do
-      [30, 30, 30, 50, 5, 0, 0, 0, 10, 10]
+      [0.3, 0.3, 0.3, 0.5, 0.05, 0, 0, 0, 0.1, 0.1]
     end
 
     let(:desirability_data_as_nps_section_6) do
-      [0, 0, 30, 50, 5, 0, 0, 0, 10, 10]
+      [0, 0, 0.3, 0.5, 0.05, 0, 0, 0, 0.1, 0.1]
     end
 
     let(:desirability_data_as_nps_section_7) do
-      [50, 50, 0, 0, 0, 0, 0, 0, 0, 0]
+      [0.5, 0.5, 0, 0, 0, 0, 0, 0, 0, 0]
     end
 
     let(:desirability_data_as_nps) do

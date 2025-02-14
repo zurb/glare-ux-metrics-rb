@@ -335,7 +335,7 @@ module Glare
 
           ordered_scored_questions.each_with_index do |question, index|
             # append :fraction property [whole number]/5
-            next question[:fraction] = "5/5" if question[:score] >= 95
+            next question[:fraction] = "5/5" if question[:score] >= 0.95
 
             prev_index = index - 1
             prev_question = ordered_scored_questions[prev_index]
