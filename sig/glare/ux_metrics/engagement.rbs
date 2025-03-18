@@ -1,0 +1,23 @@
+module Glare
+  module UxMetrics
+    module Engagement
+      class Parser
+        attr_reader scores: Hash[::Symbol | ::String, ::String | ::Float | ::Integer]
+        attr_reader clicks: Array[ClickData]
+
+        def initialize: (
+          scores: Hash[::Symbol | ::String, ::String | ::Float | ::Integer],
+          clicks: Array[ClickData]
+        ) -> void
+
+        def valid?: -> bool
+
+        def parse: -> Result
+
+        class InvalidDataError < Error
+          def correct_data: -> String
+        end
+      end
+    end
+  end
+end

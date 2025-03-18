@@ -1,0 +1,28 @@
+module Glare
+  module UxMetrics
+    class Error < StandardError
+    end
+
+    class Result
+      attr_reader result: Float
+      attr_reader label: String
+      attr_reader threshold: String
+
+      def initialize: (result: Float, label: String, threshold: String) -> void
+
+      def self.default: () -> Result
+    end
+
+    class ClickData
+      attr_reader hotspot: Integer
+      attr_reader x_pos: Float
+      attr_reader y_pos: Float
+
+      def initialize: (x_pos: Float, y_pos: Float, hotspot: Integer) -> void
+
+      def in_hotspot?: -> bool
+    end
+
+    VERSION: String
+  end
+end

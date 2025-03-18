@@ -1,0 +1,26 @@
+module Glare
+  module UxMetrics
+    module Desirability
+      class Parser
+        CHOICE_KEYS: Array[String]
+        attr_reader questions: Array[Hash[::Symbol | ::String, ::String | ::Float | ::Integer] | Array[::String | ::Float | ::Integer]]
+
+        def initialize: (
+          questions: Array[Hash[::Symbol | ::String, ::String | ::Float | ::Integer] | Array[::String | ::Float | ::Integer]]
+        ) -> void
+
+        def no_promoters_for_question?: -> bool
+
+        def valid?: -> bool
+
+        def parse: (question_index: Integer)-> Result
+
+        def calculate_question: (Hash[::Symbol | ::String, ::String | ::Float | ::Integer] | Array[::String | ::Float | ::Integer]) -> float
+
+        class InvalidDataError < Error
+          def correct_data: -> String
+        end
+      end
+    end
+  end
+end

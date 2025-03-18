@@ -1,0 +1,26 @@
+module Glare
+  module UxMetrics
+    module Expectations
+      class Parser
+        CHOICE_KEYS: Array[String]
+        SENTIMENT_KEYS: Array[String]
+        attr_reader choices: Hash[::Symbol | ::String, ::String | ::Float | ::Integer]
+        attr_reader sentiment: Hash[::Symbol | ::String, ::String | ::Float | ::Integer]
+        attr_accessor result: Float
+        attr_accessor label: String
+
+        def initialize: (
+            choices: Hash[::Symbol | ::String, ::String | ::Float | ::Integer],
+            sentiment: Hash[::Symbol | ::String, ::String | ::Float | ::Integer]) -> void
+
+        def valid?: -> bool
+
+        def parse: -> Result
+
+        class InvalidDataError < Error
+          def correct_data: -> String
+        end
+      end
+    end
+  end
+end
