@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Glare
   class Util
     def self.str_is_integer?(str)
