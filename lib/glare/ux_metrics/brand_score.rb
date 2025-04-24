@@ -116,20 +116,7 @@ module Glare
         end
 
         def parse
-          npa = npa_question[:helpful].to_f +
-                   npa_question[:innovative].to_f +
-                   npa_question[:simple].to_f +
-                   npa_question[:joyful].to_f -
-                   npa_question[:complicated].to_f -
-                   npa_question[:confusing].to_f -
-                   npa_question[:overwhelming].to_f -
-                   npa_question[:annoying].to_f
-
-          market = market_recognition_question.select { |v| v[:selected] }.first[:percent]
-
-          nps = nps_question[0..1].sum # promoters only
-
-          result = nps + market + npa
+          result = nps_score + market_score + npa_score
 
           threshold = if result >= 3.0
             'positive'
@@ -148,6 +135,33 @@ module Glare
                             end
 
           Result.new(result: result, threshold: threshold, label: label)
+        end
+
+        def breakdown
+          {
+            nps: nps_score,
+            market_recognition: market_score,
+            npa: npa_score,
+          }
+        end
+
+        def nps_score
+          @nps_score ||= nps_question[0..1].sum # promoters only
+        end
+
+        def market_score
+          @market_score ||= market_recognition_question.select { |v| v[:selected] }.first[:percent]
+        end
+
+        def npa_score
+          @npa_score ||= npa_question[:helpful].to_f +
+                   npa_question[:innovative].to_f +
+                   npa_question[:simple].to_f +
+                   npa_question[:joyful].to_f -
+                   npa_question[:complicated].to_f -
+                   npa_question[:confusing].to_f -
+                   npa_question[:overwhelming].to_f -
+                   npa_question[:annoying].to_f
         end
 
         class InvalidDataError < Error
