@@ -265,6 +265,12 @@ RSpec.describe Glare::UxMetrics do
         expect(data.label).to eq("5/5")
       end
     end
+
+    context "Parser Versioning" do
+      it "defaults to V2::Parser" do
+        expect(Glare::UxMetrics::Desirability.default_parser_version).to eq(Glare::UxMetrics::Desirability::V2::Parser)
+      end
+    end
   end
 
   describe Glare::UxMetrics::PostTaskSatisfaction do
