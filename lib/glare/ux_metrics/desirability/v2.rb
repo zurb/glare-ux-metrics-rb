@@ -5,7 +5,87 @@ module Glare
     module Desirability
       module V2
         class Parser
-          CHOICE_KEYS = %w[very_interested moderately_interested slightly_interested not_interested].freeze
+
+      # def self.result(sections, filters: {}, memoized: true)
+      #   sentiment_section = sections.first
+      #   likert_section = sections.last
+      #
+      #   raise "no sentiment section for desirability V2" unless sentiment_section.present?
+      #   raise "no likert section for desirability V2" unless likert_section.present?
+      #
+      #   sentiment_choices = sentiment_section.variations.first.choices
+      #
+      #   sentiment_score = 0
+      #   total_impressions = 0
+      #   sentiment_choices.each_with_index do |choice, index|
+      #     case index
+      #     when 0..3
+      #       sentiment_score += choice.selected_percentage(filters, memoized: memoized).round
+      #     end
+      #
+      #     total_impressions += choice.selected_percentage(filters, memoized: memoized).round
+      #   end
+      #
+      #   sentiment_score = UxMetric.safe_divide(sentiment_score, total_impressions.to_f) * 100
+      #
+      #   likert_variation = likert_section.variations.first
+      #   likert_score = if likert_variation.present?
+      #     res = 0
+      #
+      #     likert_variation.choices.each_with_index do |choice, index|
+      #       case index
+      #       when 0 # Very Unlikely
+      #         res += choice.selected_percentage(filters, memoized: memoized).round
+      #       when 1 # Somewhat Unlikely
+      #         res += choice.selected_percentage(filters, memoized: memoized).round * 2
+      #       when 2 # Neutral
+      #         res += choice.selected_percentage(filters, memoized: memoized).round * 3
+      #       when 3 # Somewhat Likely
+      #         res += choice.selected_percentage(filters, memoized: memoized).round * 4
+      #       when 4 # Very Likely
+      #         res += choice.selected_percentage(filters, memoized: memoized).round * 5
+      #       end
+      #     end
+      #
+      #     UxMetric.safe_divide(res, 500.to_f) * 100
+      #   end
+      #
+      #   score = UxMetric.safe_divide((sentiment_score + likert_score), 2.to_f).round # average them out
+      #
+      #   threshold = if score >= 80
+      #                 "positive"
+      #               elsif score >= 60
+      #                 "neutral"
+      #               else
+      #                 "negative"
+      #               end
+      #
+      #   {
+      #     label: threshold,
+      #     threshold: threshold,
+      #     score: score,
+      #     likert_score: likert_score,
+      #     sentiment_score: sentiment_score
+      #   }
+      #
+      #
+    # new this.Choice({ text: 'Helpful' }),
+    #   new this.Choice({ text: 'Innovative' }),
+    #   new this.Choice({ text: 'Simple' }),
+    #   new this.Choice({ text: 'Joyful' }),
+    #   new this.Choice({ text: 'Complicated' }),
+    #   new this.Choice({ text: 'Confusing' }),
+    #   new this.Choice({ text: 'Unnecessary' }),
+    #   new this.Choice({ text: 'Uninteresting' }),
+      # end
+      #
+  # { text: 'Very Unlikely', position: 0, branch_event: next },
+  # { text: 'Somewhat Unlikely', position: 1, branch_event: next },
+  # { text: 'Neutral', position: 2, branch_event: next },
+  # { text: 'Somewhat Likely', position: 3, branch_event: next },
+  # { text: 'Very Likely', position: 4, branch_event: next },
+          SENTIMENT_CHOICE_KEYS = %w[helpful innovative simple joyful complicated confusing unnecessary uninteresting].freeze
+          LIKERT_CHOICE_KEYS = %w[very_unlikely somewhat_unlikely neutral somewhat_likely very_likely].freeze
 
           def initialize(questions:)
             @questions = questions
@@ -14,34 +94,14 @@ module Glare
           attr_reader :questions
 
           def valid?
-            return false unless questions.is_a?(Array) && questions.size
+            return false unless questions.is_a?(Array) && questions.size == 2
 
-            return false unless questions.all? do |question|
-              if question.is_a?(Hash)
-                missing_attributes = CHOICE_KEYS - question.keys.map(&:to_s)
-                return false unless missing_attributes.empty?
+            sentiment = questions.first
+            likert = questions.last
 
-                question.values.all? do |v|
-                  return Glare::Util.str_is_integer?(v) if v.is_a?(String)
+            return false unless valid_sentiment_question?(sentiment)
 
-                  (v.is_a?(Integer) || v.is_a?(Float))
-                end
-
-                true
-              elsif question.is_a?(Array)
-                return false unless question.size == 10
-
-                return false unless question.all? do |v|
-                  return Glare::Util.str_is_integer?(v) if v.is_a?(String)
-
-                  (v.is_a?(Integer) || v.is_a?(Float))
-                end
-
-                true
-              else
-                false
-              end
-            end
+            return false unless valid_likert_question?(likert)
 
             true
           end
@@ -54,69 +114,78 @@ module Glare
             end
           end
 
-          def parse(question_index:)
-            scored_questions = []
-            questions.each_with_index do |question, index|
-              scored_questions.push({
-                                      score: calculate_question(question),
-                                      no_promoters: no_promoters_for_question?(question),
-                                      question: question,
-                                      selected: index == question_index
-                                    })
-            end
+          def parse
+            sentiment = questions.first
+            likert = questions.last
 
-            ordered_scored_questions = scored_questions.sort_by do |question|
-              question[:score]
-            end
+            sentiment_score = calculate_sentiment_question(sentiment)
 
-            ordered_scored_questions.each_with_index do |question, index|
-              # append :fraction property [whole number]/5
-              next question[:fraction] = "5/5" if question[:score] >= 0.95
+            likert_score = calculate_likert_question(likert)
 
-              prev_index = index - 1
-              prev_question = ordered_scored_questions[prev_index]
+            result = (sentiment_score + likert_score) / 2
 
-              same_as_prev = if prev_question.nil?
-                               false
-                             else
-                               prev_question[:score] == question[:score]
-                             end
-
-              if same_as_prev && !prev_question[:fraction].nil?
-                question[:fraction] = prev_question[:fraction]
-              else
-                numerator = (((index + 1) / questions.length.to_f) * 5).round
-                denominator = 5
-
-                question[:fraction] = "#{numerator}/#{denominator}"
-              end
-            end
-
-            selected_scored_question = ordered_scored_questions.find do |question|
-              question[:selected]
-            end
-
-            result = selected_scored_question[:score]
-
-            label = selected_scored_question[:fraction]
-
-            threshold = if %w[5/5 4/5].include? label
+            threshold = if result >= 0.8
                           "positive"
-                        elsif label == "3/5"
+                        elsif result >= 0.6
                           "neutral"
                         else
                           "negative"
                         end
 
+            label = if threshold == "positive"
+                      "Good"
+                    elsif threshold == "neutral"
+                      "Neutral"
+                    else
+                      "Bad"
+                    end
+
             Result.new(result: result, threshold: threshold, label: label)
           end
 
-          def calculate_question(question)
-            if question.is_a? Hash
-              question[:very_interested].to_f + question[:moderately_interested].to_f - question[:slightly_interested].to_f - question[:not_interested].to_f
-            else
-              question[0].to_f + question[1].to_f - question[4].to_f - question[5].to_f - question[6].to_f - question[7].to_f - question[8].to_f - question[9].to_f
+          def calculate_sentiment_question(question)
+            positive_acc = question[:helpful].to_f + question[:innovative].to_f + question[:simple].to_f + question[:joyful].to_f
+            negative_acc = question[:complicated].to_f + question[:confusing].to_f + question[:unnecessary].to_f + question[:uninteresting].to_f
+            positive_acc / (positive_acc + negative_acc).to_f
+          end
+
+          def calculate_likert_question(question)
+            acc = question[:very_unlikely].to_f +
+              (question[:somewhat_unlikely].to_f * 2) +
+              (question[:neutral].to_f * 3) +
+              (question[:somewhat_likely].to_f * 4) +
+              (question[:very_likely].to_f * 5)
+
+            acc / 5.0
+          end
+
+          def valid_sentiment_question?(question)
+            return false unless question.is_a?(Hash)
+            missing_attributes = SENTIMENT_CHOICE_KEYS - question.keys.map(&:to_s)
+            return false unless missing_attributes.empty?
+
+            return false unless question.values.all? do |v|
+              return Glare::Util.str_is_integer?(v) if v.is_a?(String)
+
+              (v.is_a?(Integer) || v.is_a?(Float))
             end
+
+            true
+          end
+
+          def valid_likert_question?(question)
+            return false unless question.is_a?(Hash)
+
+            missing_attributes = LIKERT_CHOICE_KEYS - question.keys.map(&:to_s)
+            return false unless missing_attributes.empty?
+
+            return false unless question.values.all? do |v|
+              return Glare::Util.str_is_integer?(v) if v.is_a?(String)
+
+              (v.is_a?(Integer) || v.is_a?(Float))
+            end
+
+            true
           end
 
           class InvalidDataError < Error
