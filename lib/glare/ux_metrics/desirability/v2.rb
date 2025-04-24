@@ -196,16 +196,21 @@ module Glare
             def correct_data
               {
                 sentiment: {
-                  positive: "string|integer|float",
-                  neutral: "string|integer|float",
-                  negative: "string|integer|float",
+                  helpful: "string|integer|float",
+                  innovative: "string|integer|float",
+                  simple: "string|integer|float",
+                  joyful: "string|integer|float",
+                  complicated: "string|integer|float",
+                  confusing: "string|integer|float",
+                  unnecessary: "string|integer|float",
+                  uninteresting: "string|integer|float"
                 },
-                choices: {
-                  matched_very_well: "string|integer|float",
-                  somewhat_matched: "string|integer|float",
+                likert: {
+                  very_unlikely: "string|integer|float",
+                  somewhat_unlikely: "string|integer|float",
                   neutral: "string|integer|float",
-                  somewhat_didnt_match: "string|integer|float",
-                  didnt_match_at_all: "string|integer|float",
+                  somewhat_likely: "string|integer|float",
+                  very_likely: "string|integer|float"
                 }
               }.to_json
             end
