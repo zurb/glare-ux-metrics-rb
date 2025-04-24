@@ -562,35 +562,53 @@ RSpec.describe Glare::UxMetrics do
   describe Glare::UxMetrics::BrandScore do
     let(:brand_score_data) do
       [
+        [0.2, 0.3, 0.4, 0.4, 0.2, 0.2, 0.2, 0.2, 0.0, 0.2],
+        [
+          { selected: true, percent: 0.1 },
+          { selected: false, percent: 0.1 },
+          { selected: false, percent: 0.1 },
+          { selected: false, percent: 0.1 },
+          { selected: false, percent: 0.1 },
+          { selected: false, percent: 0.1 },
+          { selected: false, percent: 0.1 },
+          { selected: false, percent: 0.1 }
+        ],
         {
           helpful: 0.1,
-          clear: 0.1,
-          engaging: 0.1,
-          motivating: 0.1,
-          skeptical: 0.1,
+          innovative: 0.1,
+          simple: 0.1,
+          joyful: 0.1,
+          complicated: 0.1,
           confusing: 0.1,
-          uninteresting: 0.1,
-          overwhelming: 0.1
+          overwhelming: 0.1,
+          annoying: 0.1,
         },
-        [0.2, 0.3, 0.4, 0.4, 0.2, 0.2, 0.2, 0.2, 0.0],
       ]
     end
 
     it "validates valid brand score data" do
       data = Glare::UxMetrics::BrandScore::Parser.new(
-        questions: brand_score_data,
+        nps_question: brand_score_data[0],
+        market_recognition_question: brand_score_data[1],
+        npa_question: brand_score_data[2],
       )
       expect(data.valid?).to eq(true)
     end
 
     it "invalidates invalid brand score data" do
-      data = Glare::UxMetrics::BrandScore::Parser.new(questions: [{ hi: "yooo" }])
+      data = Glare::UxMetrics::BrandScore::Parser.new(
+        nps_question: [],
+        npa_question: {},
+        market_recognition_question: {},
+      )
       expect(data.valid?).to eq(false)
     end
 
     it "returns valid data" do
       data = Glare::UxMetrics::BrandScore::Parser.new(
-        questions: brand_score_data,
+        nps_question: brand_score_data[0],
+        market_recognition_question: brand_score_data[1],
+        npa_question: brand_score_data[2],
       ).parse
       expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
     end

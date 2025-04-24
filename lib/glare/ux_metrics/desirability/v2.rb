@@ -40,7 +40,6 @@ module Glare
             likert = questions.last
 
             sentiment_score = calculate_sentiment_question(sentiment)
-
             likert_score = calculate_likert_question(likert)
 
             result = (sentiment_score + likert_score) / 2
