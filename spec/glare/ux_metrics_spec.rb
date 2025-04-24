@@ -604,6 +604,20 @@ RSpec.describe Glare::UxMetrics do
       expect(data.valid?).to eq(false)
     end
 
+    it "invalidates if no market recognition answers are selected" do
+      data = Glare::UxMetrics::BrandScore::Parser.new(
+        nps_question: brand_score_data[0],
+        market_recognition_question: [
+          { selected: false, percent: 0.1 },
+          { selected: false, percent: 0.1 },
+          { selected: false, percent: 0.1 },
+          { selected: false, percent: 0.1 },
+        ],
+        npa_question: brand_score_data[2],
+      )
+      expect(data.valid?).to eq(false)
+    end
+
     it "returns valid data" do
       data = Glare::UxMetrics::BrandScore::Parser.new(
         nps_question: brand_score_data[0],

@@ -109,6 +109,8 @@ module Glare
 
           return false unless market_recognition_question.is_a?(Array)
 
+          return false unless market_recognition_question.any? { |v| v[:selected] }
+
           missing_attributes = NPA_KEYS - npa_question.keys.map(&:to_s)
           return false unless missing_attributes.empty?
 
@@ -150,7 +152,7 @@ module Glare
         end
 
         def market_score
-          @market_score ||= market_recognition_question.select { |v| v[:selected] }.first[:percent]
+          @market_score ||= market_recognition_question.select { |v| v[:selected] }[0][:percent]
         end
 
         def npa_score
