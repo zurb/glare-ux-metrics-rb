@@ -496,6 +496,36 @@ RSpec.describe Glare::UxMetrics do
         expect(data.label).to eq("Bad")
       end
     end
+
+    context "Breakdown" do
+      it "returns two breakdowns" do
+        data = Glare::UxMetrics::Desirability::V2::Parser.new(
+          questions: [sentiment_question, likert_question]
+        )
+       expect(data.breakdown.size).to eq(2)
+      end
+
+      it "returns a sentiment and likert breakdown" do
+        data = Glare::UxMetrics::Desirability::V2::Parser.new(
+          questions: [sentiment_question, likert_question]
+        )
+        expect(data.breakdown.keys.sort).to eq([:sentiment_score, :likert_score].sort)
+      end
+
+      it "sentiment is between 0.0 and 1.0" do
+        data = Glare::UxMetrics::Desirability::V2::Parser.new(
+          questions: [sentiment_question, likert_question]
+        )
+        expect(data.breakdown[:sentiment_score]).to be_between(0.0, 1.0)
+      end
+
+      it "likert is between 0.0 and 1.0" do
+        data = Glare::UxMetrics::Desirability::V2::Parser.new(
+          questions: [sentiment_question, likert_question]
+        )
+        expect(data.breakdown[:likert_score]).to be_between(0.0, 1.0)
+      end
+    end
   end
 
   describe Glare::UxMetrics::PostTaskSatisfaction do

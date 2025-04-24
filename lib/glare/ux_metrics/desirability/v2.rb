@@ -5,85 +5,6 @@ module Glare
     module Desirability
       module V2
         class Parser
-
-      # def self.result(sections, filters: {}, memoized: true)
-      #   sentiment_section = sections.first
-      #   likert_section = sections.last
-      #
-      #   raise "no sentiment section for desirability V2" unless sentiment_section.present?
-      #   raise "no likert section for desirability V2" unless likert_section.present?
-      #
-      #   sentiment_choices = sentiment_section.variations.first.choices
-      #
-      #   sentiment_score = 0
-      #   total_impressions = 0
-      #   sentiment_choices.each_with_index do |choice, index|
-      #     case index
-      #     when 0..3
-      #       sentiment_score += choice.selected_percentage(filters, memoized: memoized).round
-      #     end
-      #
-      #     total_impressions += choice.selected_percentage(filters, memoized: memoized).round
-      #   end
-      #
-      #   sentiment_score = UxMetric.safe_divide(sentiment_score, total_impressions.to_f) * 100
-      #
-      #   likert_variation = likert_section.variations.first
-      #   likert_score = if likert_variation.present?
-      #     res = 0
-      #
-      #     likert_variation.choices.each_with_index do |choice, index|
-      #       case index
-      #       when 0 # Very Unlikely
-      #         res += choice.selected_percentage(filters, memoized: memoized).round
-      #       when 1 # Somewhat Unlikely
-      #         res += choice.selected_percentage(filters, memoized: memoized).round * 2
-      #       when 2 # Neutral
-      #         res += choice.selected_percentage(filters, memoized: memoized).round * 3
-      #       when 3 # Somewhat Likely
-      #         res += choice.selected_percentage(filters, memoized: memoized).round * 4
-      #       when 4 # Very Likely
-      #         res += choice.selected_percentage(filters, memoized: memoized).round * 5
-      #       end
-      #     end
-      #
-      #     UxMetric.safe_divide(res, 500.to_f) * 100
-      #   end
-      #
-      #   score = UxMetric.safe_divide((sentiment_score + likert_score), 2.to_f).round # average them out
-      #
-      #   threshold = if score >= 80
-      #                 "positive"
-      #               elsif score >= 60
-      #                 "neutral"
-      #               else
-      #                 "negative"
-      #               end
-      #
-      #   {
-      #     label: threshold,
-      #     threshold: threshold,
-      #     score: score,
-      #     likert_score: likert_score,
-      #     sentiment_score: sentiment_score
-      #   }
-      #
-      #
-    # new this.Choice({ text: 'Helpful' }),
-    #   new this.Choice({ text: 'Innovative' }),
-    #   new this.Choice({ text: 'Simple' }),
-    #   new this.Choice({ text: 'Joyful' }),
-    #   new this.Choice({ text: 'Complicated' }),
-    #   new this.Choice({ text: 'Confusing' }),
-    #   new this.Choice({ text: 'Unnecessary' }),
-    #   new this.Choice({ text: 'Uninteresting' }),
-      # end
-      #
-  # { text: 'Very Unlikely', position: 0, branch_event: next },
-  # { text: 'Somewhat Unlikely', position: 1, branch_event: next },
-  # { text: 'Neutral', position: 2, branch_event: next },
-  # { text: 'Somewhat Likely', position: 3, branch_event: next },
-  # { text: 'Very Likely', position: 4, branch_event: next },
           SENTIMENT_CHOICE_KEYS = %w[helpful innovative simple joyful complicated confusing unnecessary uninteresting].freeze
           LIKERT_CHOICE_KEYS = %w[very_unlikely somewhat_unlikely neutral somewhat_likely very_likely].freeze
 
@@ -141,6 +62,16 @@ module Glare
                     end
 
             Result.new(result: result, threshold: threshold, label: label)
+          end
+
+          def breakdown
+            sentiment = questions.first
+            likert = questions.last
+
+            {
+              sentiment_score: calculate_sentiment_question(sentiment),
+              likert_score: calculate_likert_question(likert)
+            }
           end
 
           def calculate_sentiment_question(question)
