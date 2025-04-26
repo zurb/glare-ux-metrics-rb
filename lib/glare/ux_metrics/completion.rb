@@ -4,16 +4,15 @@ module Glare
   module UxMetrics
     module Completion
       class Parser
-        def initialize(direct_success:, indirect_success:, failed:)
+        def initialize(direct_success:, indirect_success:)
           @direct_success = direct_success
           @indirect_success = indirect_success
-          @failed = failed
         end
 
-        attr_reader :direct_success, :indirect_success, :failed
+        attr_reader :direct_success, :indirect_success
 
         def valid?
-          return false unless direct_success.is_a?(Float) && indirect_success.is_a?(Float) && failed.is_a?(Float)
+          return false unless direct_success.is_a?(Float) && indirect_success.is_a?(Float)
 
           true
         end
@@ -23,7 +22,7 @@ module Glare
 
           label = if result > 0.9
                     "Successful"
-                  elsif result <= 90 && result >= 75
+                  elsif result >= 0.75
                     "Avg"
                   else
                     "Failed"
