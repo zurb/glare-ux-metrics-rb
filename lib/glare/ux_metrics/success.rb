@@ -83,11 +83,11 @@ module Glare
         end
 
         def high_scorer?
-          average_primary_score >= 90 || average_secondary_score >= 80 || average_tertiary_score >= 65
+          average_primary_score >= 0.9 || average_secondary_score >= 0.8 || average_tertiary_score >= 0.65
         end
 
         def avg_scorer?
-          (average_primary_score >= 80 && average_primary_score < 90) || (average_secondary_score >= 70 && average_secondary_score < 80) || (average_tertiary_score >= 55 && average_tertiary_score < 65)
+          (average_primary_score >= 0.8 && average_primary_score < 0.9) || (average_secondary_score >= 0.7 && average_secondary_score < 0.8) || (average_tertiary_score >= 0.55 && average_tertiary_score < 0.65)
         end
 
         def threshold
