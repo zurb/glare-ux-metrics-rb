@@ -1,0 +1,21 @@
+module Glare
+  module UxMetrics
+    module Success
+      class Parser
+        attr_reader questions: Array[::Hash]
+
+        def initialize: (questions:Array[::Hash])
+
+        def valid?: -> bool
+
+        def valid_question?: -> bool
+
+        def parse: -> Result
+
+        class InvalidDataError < Error
+          def correct_data: -> String
+        end
+      end
+    end
+  end
+end
