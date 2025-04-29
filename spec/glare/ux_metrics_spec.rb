@@ -705,6 +705,107 @@ RSpec.describe Glare::UxMetrics do
     end
   end
 
+  describe Glare::UxMetrics::Usability do
+    let(:usability_data) do
+      [
+        {
+          average_primary_percentage: 0.4,
+          average_secondary_percentage: 0.2,
+          average_tertiary_percentage: 0.0
+        },
+        {
+          average_primary_percentage: 0.3,
+          average_secondary_percentage: 0.3,
+          average_tertiary_percentage: 0.1
+        }
+      ]
+    end
+
+    it "validates valid usability data" do
+      parser = Glare::UxMetrics::Usability::Parser.new(questions: usability_data)
+      expect(parser.valid?).to eq(true)
+    end
+
+    it "invalidates empty questions array" do
+      parser = Glare::UxMetrics::Usability::Parser.new(questions: [])
+      expect(parser.valid?).to eq(false)
+    end
+
+    it "invalidates non-array questions" do
+      parser = Glare::UxMetrics::Usability::Parser.new(questions: "not an array")
+      expect(parser.valid?).to eq(false)
+    end
+
+    it "invalidates questions with missing required keys" do
+      invalid_data = [
+        {
+          average_primary_percentage: 0.4,
+          average_secondary_percentage: 0.2
+          # missing average_tertiary_percentage
+        }
+      ]
+      parser = Glare::UxMetrics::Usability::Parser.new(questions: invalid_data)
+      expect(parser.valid?).to eq(false)
+    end
+
+    it "returns valid data" do
+      parser = Glare::UxMetrics::Usability::Parser.new(questions: usability_data).parse
+      expect(parser.result.is_a?(Float) && parser.label.is_a?(String) && parser.threshold.is_a?(String)).to eq(true)
+    end
+
+    it "assigns 'Good' label for score >= 0.8" do
+      high_score_data = [
+        {
+          average_primary_percentage: 0.9,
+          average_secondary_percentage: 0.8,
+          average_tertiary_percentage: 0.7
+        }
+      ]
+      parser = Glare::UxMetrics::Usability::Parser.new(questions: high_score_data).parse
+      expect(parser.label).to eq("Good")
+      expect(parser.threshold).to eq("positive")
+    end
+
+    it "assigns 'Avg' label for score >= 0.6 and < 0.8" do
+      medium_score_data = [
+        {
+          average_primary_percentage: 0.7,
+          average_secondary_percentage: 0.6,
+          average_tertiary_percentage: 0.5
+        }
+      ]
+      parser = Glare::UxMetrics::Usability::Parser.new(questions: medium_score_data).parse
+      expect(parser.label).to eq("Avg")
+      expect(parser.threshold).to eq("neutral")
+    end
+
+    it "assigns 'Low' label for score < 0.6" do
+      low_score_data = [
+        {
+          average_primary_percentage: 0.4,
+          average_secondary_percentage: 0.3,
+          average_tertiary_percentage: 0.2
+        }
+      ]
+      parser = Glare::UxMetrics::Usability::Parser.new(questions: low_score_data).parse
+      expect(parser.label).to eq("Low")
+      expect(parser.threshold).to eq("negative")
+    end
+
+    it "calculates score correctly" do
+      parser = Glare::UxMetrics::Usability::Parser.new(questions: usability_data)
+      
+      # Calculate expected score
+      expected_score = (
+        (0.4 + 0.3) / 2 + # average primary
+        (0.2 + 0.3) / 2 + # average secondary
+        (0.0 + 0.1) / 2   # average tertiary
+      ) / 3
+
+      expect(parser.parse.result).to be_within(0.001).of(expected_score)
+    end
+  end
+
   describe Glare::UxMetrics::Result do
     it "returns a valid default" do
       result = Glare::UxMetrics::Result.default
