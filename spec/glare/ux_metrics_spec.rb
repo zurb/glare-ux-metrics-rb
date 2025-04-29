@@ -806,6 +806,179 @@ RSpec.describe Glare::UxMetrics do
     end
   end
 
+  describe Glare::UxMetrics::Success do
+    let(:success_data) do
+      [
+        {
+          average_primary_percentage: 0.4,
+          average_secondary_percentage: 0.2,
+          average_tertiary_percentage: 0.0
+        },
+        {
+          average_primary_percentage: 0.3,
+          average_secondary_percentage: 0.3,
+          average_tertiary_percentage: 0.1
+        }
+      ]
+    end
+
+    it "validates valid success data" do
+      parser = Glare::UxMetrics::Success::Parser.new(questions: success_data)
+      expect(parser.valid?).to eq(true)
+    end
+
+    it "invalidates empty questions array" do
+      parser = Glare::UxMetrics::Success::Parser.new(questions: [])
+      expect(parser.valid?).to eq(false)
+    end
+
+    it "invalidates non-array questions" do
+      parser = Glare::UxMetrics::Success::Parser.new(questions: "not an array")
+      expect(parser.valid?).to eq(false)
+    end
+
+    it "invalidates questions with missing required keys" do
+      invalid_data = [
+        {
+          average_primary_percentage: 0.4,
+          average_secondary_percentage: 0.2
+          # missing average_tertiary_percentage
+        }
+      ]
+      parser = Glare::UxMetrics::Success::Parser.new(questions: invalid_data)
+      expect(parser.valid?).to eq(false)
+    end
+
+    it "returns valid data" do
+      parser = Glare::UxMetrics::Success::Parser.new(questions: success_data).parse
+      expect(parser.result.is_a?(Float) && parser.label.is_a?(String) && parser.threshold.is_a?(String)).to eq(true)
+    end
+
+    it "assigns 'High' label for high scores" do
+      high_score_data = [
+        {
+          average_primary_percentage: 0.95, # >= 90
+          average_secondary_percentage: 0.85, # >= 80
+          average_tertiary_percentage: 0.70 # >= 65
+        }
+      ]
+      parser = Glare::UxMetrics::Success::Parser.new(questions: high_score_data).parse
+      expect(parser.label).to eq("High")
+      expect(parser.threshold).to eq("positive")
+    end
+
+    it "assigns 'Avg' label for average scores" do
+      avg_score_data = [
+        {
+          average_primary_percentage: 0.85, # >= 80 and < 90
+          average_secondary_percentage: 0.75, # >= 70 and < 80
+          average_tertiary_percentage: 0.60 # >= 55 and < 65
+        }
+      ]
+      parser = Glare::UxMetrics::Success::Parser.new(questions: avg_score_data).parse
+      expect(parser.label).to eq("Avg")
+      expect(parser.threshold).to eq("neutral")
+    end
+
+    it "assigns 'Low' label for low scores" do
+      low_score_data = [
+        {
+          average_primary_percentage: 0.75, # < 80
+          average_secondary_percentage: 0.65, # < 70
+          average_tertiary_percentage: 0.50 # < 55
+        }
+      ]
+      parser = Glare::UxMetrics::Success::Parser.new(questions: low_score_data).parse
+      expect(parser.label).to eq("Low")
+      expect(parser.threshold).to eq("negative")
+    end
+
+    it "calculates score correctly" do
+      parser = Glare::UxMetrics::Success::Parser.new(questions: success_data)
+      
+      # Calculate expected score
+      expected_score = (
+        (0.4 + 0.3) / 2 + # average primary
+        (0.2 + 0.3) / 2 + # average secondary
+        (0.0 + 0.1) / 2   # average tertiary
+      ) / 3
+
+      expect(parser.parse.result).to be_within(0.001).of(expected_score)
+    end
+
+    it "identifies high scorer based on primary score" do
+      data = [
+        {
+          average_primary_percentage: 0.95, # >= 90
+          average_secondary_percentage: 0.70, # < 80
+          average_tertiary_percentage: 0.60 # < 65
+        }
+      ]
+      parser = Glare::UxMetrics::Success::Parser.new(questions: data).parse
+      expect(parser.label).to eq("High")
+    end
+
+    it "identifies high scorer based on secondary score" do
+      data = [
+        {
+          average_primary_percentage: 0.85, # < 90
+          average_secondary_percentage: 0.85, # >= 80
+          average_tertiary_percentage: 0.60 # < 65
+        }
+      ]
+      parser = Glare::UxMetrics::Success::Parser.new(questions: data).parse
+      expect(parser.label).to eq("High")
+    end
+
+    it "identifies high scorer based on tertiary score" do
+      data = [
+        {
+          average_primary_percentage: 0.85, # < 90
+          average_secondary_percentage: 0.75, # < 80
+          average_tertiary_percentage: 0.70 # >= 65
+        }
+      ]
+      parser = Glare::UxMetrics::Success::Parser.new(questions: data).parse
+      expect(parser.label).to eq("High")
+    end
+
+    it "identifies avg scorer based on primary score" do
+      data = [
+        {
+          average_primary_percentage: 0.85, # >= 80 and < 90
+          average_secondary_percentage: 0.65, # < 70
+          average_tertiary_percentage: 0.50 # < 55
+        }
+      ]
+      parser = Glare::UxMetrics::Success::Parser.new(questions: data).parse
+      expect(parser.label).to eq("Avg")
+    end
+
+    it "identifies avg scorer based on secondary score" do
+      data = [
+        {
+          average_primary_percentage: 0.75, # < 80
+          average_secondary_percentage: 0.75, # >= 70 and < 80
+          average_tertiary_percentage: 0.50 # < 55
+        }
+      ]
+      parser = Glare::UxMetrics::Success::Parser.new(questions: data).parse
+      expect(parser.label).to eq("Avg")
+    end
+
+    it "identifies avg scorer based on tertiary score" do
+      data = [
+        {
+          average_primary_percentage: 0.75, # < 80
+          average_secondary_percentage: 0.65, # < 70
+          average_tertiary_percentage: 0.60 # >= 55 and < 65
+        }
+      ]
+      parser = Glare::UxMetrics::Success::Parser.new(questions: data).parse
+      expect(parser.label).to eq("Avg")
+    end
+  end
+
   describe Glare::UxMetrics::Result do
     it "returns a valid default" do
       result = Glare::UxMetrics::Result.default
