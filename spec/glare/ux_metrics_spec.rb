@@ -559,6 +559,38 @@ RSpec.describe Glare::UxMetrics do
     end
   end
 
+  describe Glare::UxMetrics::Reaction do
+    let(:reaction_data) do
+      {
+        very_satisfied: 0.1,
+        somewhat_satisfied: 0.1,
+        neutral: 0.1,
+        somewhat_dissatisfied: 0.1,
+        very_dissatisfied: 0.1,
+      }
+    end
+
+    it "validates valid reaction data" do
+      data = Glare::UxMetrics::Reaction::Parser.new(
+        choices: reaction_data,
+      )
+      expect(data.valid?).to eq(true)
+    end
+
+    it "invalidates invalid reaction data" do
+      data = Glare::UxMetrics::Reaction::Parser.new(choices: { ha: "bla" })
+      expect(data.valid?).to eq(false)
+    end
+
+    it "returns valid data" do
+      data = Glare::UxMetrics::Reaction::Parser.new(
+        choices: reaction_data,
+      ).parse
+      expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
+    end
+  end
+
+
   describe Glare::UxMetrics::BrandScore do
     let(:brand_score_data) do
       [
