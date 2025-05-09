@@ -1041,6 +1041,87 @@ RSpec.describe Glare::UxMetrics do
     end
   end
 
+  describe Glare::UxMetrics::Intent do
+    let(:intent_data) do
+      {
+        primary: 0.3,
+        secondary: 0.2,
+        tertiary: 0.1
+      }
+    end
+
+    it "validates valid intent data" do
+      data = Glare::UxMetrics::Intent::Parser.new(choices: intent_data)
+      expect(data.valid?).to eq(true)
+    end
+
+    it "invalidates invalid intent data" do
+      data = Glare::UxMetrics::Intent::Parser.new(choices: { primary: "not a number" })
+      expect(data.valid?).to eq(false)
+    end
+
+    it "invalidates when missing required keys" do
+      data = Glare::UxMetrics::Intent::Parser.new(choices: { primary: 0.3, secondary: 0.2 })
+      expect(data.valid?).to eq(false)
+    end
+
+    it "returns valid data" do
+      data = Glare::UxMetrics::Intent::Parser.new(choices: intent_data).parse
+      expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
+    end
+
+    it "calculates score correctly" do
+      parser = Glare::UxMetrics::Intent::Parser.new(choices: intent_data)
+      # Expected score = (primary * 3 + secondary * 2 + tertiary) / 3
+      expected_score = (0.3 * 3 + 0.2 * 2 + 0.1) / 3
+      expect(parser.result).to be_within(0.001).of(expected_score)
+    end
+
+    it "assigns 'High Intent' label for score > 0.6" do
+      high_score_data = {
+        primary: 0.9,
+        secondary: 0.8,
+        tertiary: 0.7
+      }
+      data = Glare::UxMetrics::Intent::Parser.new(choices: high_score_data).parse
+      expect(data.label).to eq("High Intent")
+      expect(data.threshold).to eq("positive")
+    end
+
+    it "assigns 'Avg Intent' label for score >= 0.4 and <= 0.6" do
+      avg_score_data = {
+        primary: 0.4,
+        secondary: 0.1,
+        tertiary: 0.1
+      }
+      data = Glare::UxMetrics::Intent::Parser.new(choices: avg_score_data).parse
+      expect(data.label).to eq("Avg Intent")
+      expect(data.threshold).to eq("neutral")
+    end
+
+    it "assigns 'Low Intent' label for score < 0.4" do
+      low_score_data = {
+        primary: 0.2,
+        secondary: 0.1,
+        tertiary: 0.0
+      }
+      data = Glare::UxMetrics::Intent::Parser.new(choices: low_score_data).parse
+      expect(data.label).to eq("Low Intent")
+      expect(data.threshold).to eq("negative")
+    end
+
+    it "handles string number inputs" do
+      string_data = {
+        primary: "3",
+        secondary: "2",
+        tertiary: "1"
+      }
+      data = Glare::UxMetrics::Intent::Parser.new(choices: string_data)
+      expect(data.valid?).to eq(true)
+      expect(data.result).to be_within(0.001).of((3.0 * 3 + 2.0 * 2 + 1.0) / 3)
+    end
+  end
+
   describe Glare::UxMetrics::Result do
     it "returns a valid default" do
       result = Glare::UxMetrics::Result.default
