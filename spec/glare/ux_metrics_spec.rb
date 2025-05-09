@@ -1050,4 +1050,106 @@ RSpec.describe Glare::UxMetrics do
       expect(result.label.empty?).to eq(true)
     end
   end
+
+  describe Glare::UxMetrics::Loyalty do
+    let(:loyalty_data) do
+      [
+        0.1, # highest (promoters)
+        0.2,
+        0.1, # passives
+        0.05,
+        0.09, # detractors
+        0.05,
+        0.1,
+        0.01,
+        0.02,
+        0.02 # lowest
+      ]
+    end
+
+    it "validates valid loyalty data" do
+      data = Glare::UxMetrics::Loyalty::Parser.new(choices: loyalty_data)
+      expect(data.valid?).to eq(true)
+    end
+
+    it "invalidates invalid loyalty data" do
+      data = Glare::UxMetrics::Loyalty::Parser.new(choices: [0.1, 0.2]) # Not enough choices
+      expect(data.valid?).to eq(false)
+    end
+
+    it "returns valid data" do
+      data = Glare::UxMetrics::Loyalty::Parser.new(choices: loyalty_data).parse
+      expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
+    end
+
+    it "calculates NPS score correctly" do
+      parser = Glare::UxMetrics::Loyalty::Parser.new(choices: loyalty_data)
+      # Expected NPS = Promoters (0.1 + 0.2) - Detractors (0.09 + 0.05 + 0.1 + 0.01 + 0.02 + 0.02)
+      expected_score = (0.1 + 0.2) - (0.09 + 0.05 + 0.1 + 0.01 + 0.02 + 0.02)
+      expect(parser.nps_score).to be_within(0.001).of(expected_score)
+    end
+
+    it "assigns 'High' label for NPS >= 0.3" do
+      high_nps_data = [
+        0.4, # promoters
+        0.4,
+        0.1, # passives
+        0.05,
+        0.01, # detractors
+        0.01,
+        0.01,
+        0.01,
+        0.005,
+        0.005
+      ]
+      data = Glare::UxMetrics::Loyalty::Parser.new(choices: high_nps_data).parse
+      expect(data.label).to eq("High")
+      expect(data.threshold).to eq("positive")
+    end
+
+    it "assigns 'Average' label for NPS >= 0.0 and < 0.3" do
+      avg_nps_data = [
+        0.2, # promoters
+        0.2,
+        0.2, # passives
+        0.2,
+        0.1, # detractors
+        0.05,
+        0.02,
+        0.02,
+        0.01,
+        0.01
+      ]
+      data = Glare::UxMetrics::Loyalty::Parser.new(choices: avg_nps_data).parse
+      expect(data.label).to eq("Average")
+      expect(data.threshold).to eq("neutral")
+    end
+
+    it "assigns 'Low' label for NPS < 0.0" do
+      low_nps_data = [
+        0.1, # promoters
+        0.1,
+        0.1, # passives
+        0.1,
+        0.2, # detractors
+        0.2,
+        0.1,
+        0.05,
+        0.03,
+        0.02
+      ]
+      data = Glare::UxMetrics::Loyalty::Parser.new(choices: low_nps_data).parse
+      expect(data.label).to eq("Low")
+      expect(data.threshold).to eq("negative")
+    end
+
+    it "provides correct breakdown of promoters, passives, and detractors" do
+      parser = Glare::UxMetrics::Loyalty::Parser.new(choices: loyalty_data)
+      breakdown = parser.breakdown
+      
+      expect(breakdown[:promoters]).to be_within(0.001).of(0.1 + 0.2)
+      expect(breakdown[:passives]).to be_within(0.001).of(0.1 + 0.05)
+      expect(breakdown[:detractors]).to be_within(0.001).of(0.09 + 0.05 + 0.1 + 0.01 + 0.02 + 0.02)
+    end
+  end
 end
