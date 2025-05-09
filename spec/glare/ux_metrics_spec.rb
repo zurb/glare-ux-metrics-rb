@@ -590,6 +590,36 @@ RSpec.describe Glare::UxMetrics do
     end
   end
 
+  describe Glare::UxMetrics::Usefulness do
+    let(:usefulness_data) do
+      [{
+        strongly_agree: 0.1,
+        agree: 0.1,
+        neutral: 0.1,
+        disagree: 0.1,
+        strongly_disagree: 0.1,
+      }]
+    end
+
+    it "validates valid usefulness data" do
+      data = Glare::UxMetrics::Usefulness::Parser.new(
+        questions: usefulness_data
+      )
+      expect(data.valid?).to eq(true)
+    end
+
+    it "invalidates invalid usefulness data" do
+      data = Glare::UxMetrics::Usefulness::Parser.new(questions: [{ ha: "bla" }])
+      expect(data.valid?).to eq(false)
+    end
+
+    it "returns valid data" do
+      data = Glare::UxMetrics::Usefulness::Parser.new(
+        questions: usefulness_data
+      ).parse
+      expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
+    end
+  end
 
   describe Glare::UxMetrics::BrandScore do
     let(:brand_score_data) do
