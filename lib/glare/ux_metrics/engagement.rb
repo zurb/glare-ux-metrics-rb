@@ -6,8 +6,8 @@ module Glare
     module Engagement
       class Parser
         PRIMARY_WEIGHT = 1.0
-        SECONDARY_WEIGHT = 0.5
-        TERTIARY_WEIGHT = 0.25
+        SECONDARY_WEIGHT = 1.0
+        TERTIARY_WEIGHT = 1.0
 
         def initialize(primary_clicks_count:, secondary_clicks_count:, tertiary_clicks_count:, total_clicks_count:)
           @primary_clicks_count = primary_clicks_count
