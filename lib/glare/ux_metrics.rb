@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "glare/util"
+require "glare/ux_metrics/appeal"
 require "glare/ux_metrics/base"
 require "glare/ux_metrics/brand_score"
 require "glare/ux_metrics/completion"
