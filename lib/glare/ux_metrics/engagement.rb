@@ -5,33 +5,35 @@ module Glare
 
     module Engagement
       class Parser
-        def initialize(scores:, clicks:)
-          @scores = scores
-          @clicks = clicks
+        PRIMARY_WEIGHT = 1.0
+        SECONDARY_WEIGHT = 0.5
+        TERTIARY_WEIGHT = 0.25
+
+        def initialize(primary_clicks_count:, secondary_clicks_count:, tertiary_clicks_count:, total_clicks_count:)
+          @primary_clicks_count = primary_clicks_count
+          @secondary_clicks_count = secondary_clicks_count
+          @tertiary_clicks_count = tertiary_clicks_count
+          @total_clicks_count = total_clicks_count
         end
 
-        attr_reader :scores, :clicks
+        attr_reader :primary_clicks_count, :secondary_clicks_count, :tertiary_clicks_count, :total_clicks_count
 
         def valid?
-          return false unless scores.is_a?(Hash) && clicks.is_a?(Array) && scores.keys.size.positive? && clicks.size.positive?
+          return false unless primary_clicks_count.is_a?(Integer) && secondary_clicks_count.is_a?(Integer) && tertiary_clicks_count.is_a?(Integer) && total_clicks_count.is_a?(Integer)
 
           true
         end
 
         def parse
-          hotspot_1_clicks = clicks.filter {|click| click.hotspot.zero? }
-          hotspot_2_clicks = clicks.filter {|click| click.hotspot == 1 }
-          hotspot_3_clicks = clicks.filter {|click| click.hotspot == 3 }
-
-          primary_score = (hotspot_1_clicks.size / clicks.size.to_f) * 100
-          secondary_score = (hotspot_2_clicks.size / clicks.size.to_f) * 100
-          tertiary_score = (hotspot_3_clicks.size / clicks.size.to_f) * 100
+          primary_score = (primary_clicks_count / total_clicks_count.to_f) * PRIMARY_WEIGHT
+          secondary_score = (secondary_clicks_count / total_clicks_count.to_f) * SECONDARY_WEIGHT
+          tertiary_score = (tertiary_clicks_count / total_clicks_count.to_f) * TERTIARY_WEIGHT
 
           result = primary_score + secondary_score + tertiary_score
 
-          label = if result > 0.3
+          label = if result > 0.7
                     "High"
-                  elsif result >= 0.1
+                  elsif result >= 0.5
                     "Avg"
                   else
                     "Low"
