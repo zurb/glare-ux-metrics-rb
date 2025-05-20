@@ -1194,6 +1194,73 @@ RSpec.describe Glare::UxMetrics do
     end
   end
 
+  describe Glare::UxMetrics::Effort do
+    let(:effort_data) do
+      {
+        choices: [5, 4, 3, 5, 4, 3, 2, 1]
+      }
+    end
+
+    it "validates valid effort data" do
+      data = Glare::UxMetrics::Effort::Parser.new(nps_question: effort_data)
+      expect(data.valid?).to eq(true)
+    end
+
+    it "invalidates when not a hash" do
+      data = Glare::UxMetrics::Effort::Parser.new(nps_question: "not a hash")
+      expect(data.valid?).to eq(false)
+    end
+
+    it "invalidates when missing choices key" do
+      data = Glare::UxMetrics::Effort::Parser.new(nps_question: { wrong_key: [1, 2, 3] })
+      expect(data.valid?).to eq(false)
+    end
+
+    it "invalidates when choices is not an array" do
+      data = Glare::UxMetrics::Effort::Parser.new(nps_question: { choices: "not an array" })
+      expect(data.valid?).to eq(false)
+    end
+
+    it "returns valid data" do
+      data = Glare::UxMetrics::Effort::Parser.new(nps_question: effort_data).parse
+      expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
+    end
+
+    it "calculates score correctly" do
+      parser = Glare::UxMetrics::Effort::Parser.new(nps_question: effort_data)
+      # Expected score = sum of choices / count of choices / 5
+      expected_score = effort_data[:choices].sum / effort_data[:choices].count.to_f / 5
+      expect(parser.parse.result).to be_within(0.001).of(expected_score)
+    end
+
+    it "assigns 'Excellent' label for score >= 0.8571" do
+      high_score_data = {
+        choices: [5, 5, 5, 5, 5, 4, 4, 4]
+      }
+      data = Glare::UxMetrics::Effort::Parser.new(nps_question: high_score_data).parse
+      expect(data.label).to eq("Excellent")
+      expect(data.threshold).to eq("positive")
+    end
+
+    it "assigns 'Average' label for score >= 0.5714 and < 0.8571" do
+      medium_score_data = {
+        choices: [4, 3, 3, 3, 3, 3, 2, 3]
+      }
+      data = Glare::UxMetrics::Effort::Parser.new(nps_question: medium_score_data).parse
+      expect(data.label).to eq("Average")
+      expect(data.threshold).to eq("neutral")
+    end
+
+    it "assigns 'Low' label for score < 0.5714" do
+      low_score_data = {
+        choices: [3, 2, 2, 2, 2, 1, 1, 1]
+      }
+      data = Glare::UxMetrics::Effort::Parser.new(nps_question: low_score_data).parse
+      expect(data.label).to eq("Low")
+      expect(data.threshold).to eq("negative")
+    end
+  end
+
   describe Glare::UxMetrics::Loyalty do
     let(:loyalty_data) do
       [
