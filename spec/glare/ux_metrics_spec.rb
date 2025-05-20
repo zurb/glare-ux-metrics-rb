@@ -91,40 +91,111 @@ RSpec.describe Glare::UxMetrics do
   describe Glare::UxMetrics::Expectations do
     let(:expectations_data) do
       {
-        sentiment: {
-          positive: 0.5,
-          neutral: 0.3,
-          negative: 0.2
-        },
-        choices: {
-          matched_very_well: 0.3,
-          somewhat_matched: 0.4,
-          neutral: 0.1,
-          somewhat_didnt_match: 0.1,
-          didnt_match_at_all: 0.1,
-        }
+        failed_expectations: 0.1,
+        fell_short_of_expectations: 0.1,
+        neutral: 0.1,
+        met_expectations: 0.3,
+        exceeded_expectations: 0.4
       }
     end
 
     it "validates valid expectations data" do
       data = Glare::UxMetrics::Expectations::Parser.new(
-        choices: expectations_data[:choices],
-        sentiment: expectations_data[:sentiment]
+        choices: expectations_data
       )
       expect(data.valid?).to eq(true)
     end
 
     it "invalidates invalid expectations data" do
-      data = Glare::UxMetrics::Expectations::Parser.new(choices: { helpful: 1 }, sentiment: { bla: "hi" })
+      data = Glare::UxMetrics::Expectations::Parser.new(choices: { helpful: 1 })
+      expect(data.valid?).to eq(false)
+    end
+
+    it "invalidates when missing required keys" do
+      incomplete_data = {
+        failed_expectations: 0.1,
+        fell_short_of_expectations: 0.1,
+        neutral: 0.1,
+        met_expectations: 0.3
+        # missing exceeded_expectations
+      }
+      data = Glare::UxMetrics::Expectations::Parser.new(choices: incomplete_data)
       expect(data.valid?).to eq(false)
     end
 
     it "returns valid data" do
       data = Glare::UxMetrics::Expectations::Parser.new(
-        choices: expectations_data[:choices],
-        sentiment: expectations_data[:sentiment]
+        choices: expectations_data
       ).parse
       expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
+    end
+
+    it "calculates result correctly" do
+      data = Glare::UxMetrics::Expectations::Parser.new(
+        choices: expectations_data
+      )
+      
+      # Calculate expected result
+      positive_impressions = expectations_data[:exceeded_expectations] + 
+                             expectations_data[:met_expectations]
+      neutral_impressions = expectations_data[:neutral]
+      negative_impressions = expectations_data[:failed_expectations] + 
+                             expectations_data[:fell_short_of_expectations]
+      
+      expected_result = positive_impressions - (neutral_impressions + negative_impressions)
+      
+      expect(data.result).to be_within(0.001).of(expected_result)
+    end
+
+    it "assigns 'High' label for result > 0.3" do
+      high_score_data = {
+        failed_expectations: 0.05,
+        fell_short_of_expectations: 0.05,
+        neutral: 0.1,
+        met_expectations: 0.3,
+        exceeded_expectations: 0.5
+      }
+      
+      data = Glare::UxMetrics::Expectations::Parser.new(
+        choices: high_score_data
+      ).parse
+      
+      expect(data.threshold).to eq("positive")
+      expect(data.label).to eq("High")
+    end
+
+    it "assigns 'Met' label for result > 0.1 and <= 0.3" do
+      medium_score_data = {
+        failed_expectations: 0.1,
+        fell_short_of_expectations: 0.1,
+        neutral: 0.2,
+        met_expectations: 0.3,
+        exceeded_expectations: 0.3
+      }
+      
+      data = Glare::UxMetrics::Expectations::Parser.new(
+        choices: medium_score_data
+      ).parse
+      
+      expect(data.threshold).to eq("neutral")
+      expect(data.label).to eq("Met")
+    end
+
+    it "assigns 'Failed' label for result <= 0.1" do
+      low_score_data = {
+        failed_expectations: 0.3,
+        fell_short_of_expectations: 0.3,
+        neutral: 0.2,
+        met_expectations: 0.1,
+        exceeded_expectations: 0.1
+      }
+      
+      data = Glare::UxMetrics::Expectations::Parser.new(
+        choices: low_score_data
+      ).parse
+      
+      expect(data.threshold).to eq("negative")
+      expect(data.label).to eq("Failed")
     end
   end
 

@@ -4,14 +4,12 @@ module Glare
   module UxMetrics
     module Expectations
       class Parser
-        CHOICE_KEYS = %w[matched_very_well somewhat_matched neutral somewhat_didnt_match didnt_match_at_all].freeze
-        SENTIMENT_KEYS = %w[positive neutral negative].freeze
-        def initialize(choices:, sentiment:)
+        CHOICE_KEYS = %w[failed_expectations fell_short_of_expectations neutral met_expectations exceeded_expectations].freeze
+        def initialize(choices:)
           @choices = choices
-          @sentiment = sentiment
         end
 
-        attr_reader :choices, :sentiment
+        attr_reader :choices
 
         def valid?
           if choices.is_a?(Hash) && choices.size
@@ -19,28 +17,10 @@ module Glare
             return false unless missing_attributes.empty?
           end
 
-          if sentiment.is_a?(Hash) && sentiment.size
-            missing_attributes = SENTIMENT_KEYS - sentiment.keys.map(&:to_s)
-            return true if missing_attributes.empty?
-          end
-
-          false
+          true
         end
 
         def parse
-          positive = sentiment["positive"]
-          neutral = sentiment["neutral"]
-          negative = sentiment["negative"]
-
-          matched_very_well = choices["matched_very_well"]
-          somewhat_matched = choices["somewhat_matched"]
-          neutral_match = choices["neutral"]
-          somewhat_didnt_match = choices["somewhat_didnt_match"]
-          didnt_match_at_all = choices["didnt_match_at_all"]
-
-          result = (matched_very_well.to_f + somewhat_matched.to_f) -
-                   (neutral_match.to_f + somewhat_didnt_match.to_f + didnt_match_at_all.to_f)
-
           threshold = if result > 0.3
                         "positive"
                       elsif result > 0.1
@@ -50,14 +30,26 @@ module Glare
                       end
 
           label = if threshold == "positive"
-                    "High Expectations"
+                    "High"
                   elsif threshold == "neutral"
-                    "Met Expectations"
+                    "Met"
                   else
-                    "Failed Expectations"
+                    "Failed"
                   end
 
           Result.new(result: result, threshold: threshold, label: label)
+        end
+
+        def result
+          @result ||= begin
+            positive_impressions = choices[:exceeded_expectations].to_f +
+                                    choices[:met_expectations].to_f
+            neutral_impressions = choices[:neutral].to_f
+            negative_impressions = choices[:failed_expectations].to_f +
+                                    choices[:fell_short_of_expectations].to_f
+
+            positive_impressions - (neutral_impressions + negative_impressions)
+          end
         end
 
         class InvalidDataError < Error
@@ -67,17 +59,12 @@ module Glare
 
           def correct_data
             {
-              sentiment: {
-                positive: "string|integer|float",
-                neutral: "string|integer|float",
-                negative: "string|integer|float"
-              },
               choices: {
-                matched_very_well: "string|integer|float",
-                somewhat_matched: "string|integer|float",
+                failed_expectations: "string|integer|float",
+                fell_short_of_expectations: "string|integer|float",
                 neutral: "string|integer|float",
-                somewhat_didnt_match: "string|integer|float",
-                didnt_match_at_all: "string|integer|float"
+                met_expectations: "string|integer|float",
+                exceeded_expectations: "string|integer|float",
               }
             }.to_json
           end
