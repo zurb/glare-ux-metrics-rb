@@ -199,6 +199,111 @@ RSpec.describe Glare::UxMetrics do
     end
   end
 
+  describe Glare::UxMetrics::Satisfaction do
+    let(:satisfaction_data) do
+      {
+        very_dissatisfied: 0.1,
+        somewhat_dissatisfied: 0.1,
+        neutral: 0.1,
+        somewhat_satisfied: 0.3,
+        very_satisfied: 0.4
+      }
+    end
+
+    it "validates valid satisfaction data" do
+      data = Glare::UxMetrics::Satisfaction::Parser.new(
+        choices: satisfaction_data
+      )
+      expect(data.valid?).to eq(true)
+    end
+
+    it "invalidates invalid satisfaction data" do
+      data = Glare::UxMetrics::Satisfaction::Parser.new(choices: { helpful: 1 })
+      expect(data.valid?).to eq(false)
+    end
+
+    it "invalidates when missing required keys" do
+      incomplete_data = {
+        very_dissatisfied: 0.1,
+        somewhat_dissatisfied: 0.1,
+        neutral: 0.1,
+        somewhat_satisfied: 0.3
+        # missing very_satisfied
+      }
+      data = Glare::UxMetrics::Satisfaction::Parser.new(choices: incomplete_data)
+      expect(data.valid?).to eq(false)
+    end
+
+    it "returns valid data" do
+      data = Glare::UxMetrics::Satisfaction::Parser.new(
+        choices: satisfaction_data
+      ).parse
+      expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
+    end
+
+    it "calculates result correctly" do
+      data = Glare::UxMetrics::Satisfaction::Parser.new(
+        choices: satisfaction_data
+      )
+      
+      # Calculate expected result based on implementation
+      expected_result = satisfaction_data[:very_satisfied] + satisfaction_data[:somewhat_satisfied]
+      
+      expect(data.result).to be_within(0.001).of(expected_result)
+    end
+
+    it "assigns 'High' label for result > 0.8" do
+      high_score_data = {
+        very_dissatisfied: 0.05,
+        somewhat_dissatisfied: 0.05,
+        neutral: 0.05,
+        somewhat_satisfied: 0.35,
+        very_satisfied: 0.5
+      }
+      
+      data = Glare::UxMetrics::Satisfaction::Parser.new(
+        choices: high_score_data
+      ).parse
+      
+      expect(data.threshold).to eq("positive")
+      expect(data.label).to eq("High")
+    end
+
+    it "assigns 'Avg' label for result > 0.6 and <= 0.8" do
+      medium_score_data = {
+        very_dissatisfied: 0.1,
+        somewhat_dissatisfied: 0.1,
+        neutral: 0.1,
+        somewhat_satisfied: 0.3,
+        very_satisfied: 0.4
+      }
+      
+      data = Glare::UxMetrics::Satisfaction::Parser.new(
+        choices: medium_score_data
+      ).parse
+      
+      expect(data.threshold).to eq("neutral")
+      expect(data.label).to eq("Avg")
+    end
+
+    it "assigns 'Low' label for result <= 0.6" do
+      low_score_data = {
+        very_dissatisfied: 0.2,
+        somewhat_dissatisfied: 0.2,
+        neutral: 0.2,
+        somewhat_satisfied: 0.2,
+        very_satisfied: 0.2
+      }
+      
+      data = Glare::UxMetrics::Satisfaction::Parser.new(
+        choices: low_score_data
+      ).parse
+      
+      expect(data.threshold).to eq("negative")
+      expect(data.label).to eq("Low")
+    end
+  end
+
   describe Glare::UxMetrics::Desirability do
     context "Parser Versioning" do
       it "defaults to V2::Parser" do
