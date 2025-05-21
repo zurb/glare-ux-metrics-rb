@@ -304,6 +304,111 @@ RSpec.describe Glare::UxMetrics do
     end
   end
 
+  describe Glare::UxMetrics::Comprehension do
+    let(:comprehension_data) do
+      {
+        did_not_understand: 0.1,
+        understood_a_little: 0.1,
+        understood_most_of_it: 0.4,
+        understood_very_well: 0.4
+      }
+    end
+
+    it "validates valid comprehension data" do
+      data = Glare::UxMetrics::Comprehension::Parser.new(
+        choices: comprehension_data
+      )
+      expect(data.valid?).to eq(true)
+    end
+
+    it "invalidates invalid comprehension data" do
+      data = Glare::UxMetrics::Comprehension::Parser.new(choices: { helpful: 1 })
+      expect(data.valid?).to eq(false)
+    end
+
+    it "invalidates when missing required keys" do
+      incomplete_data = {
+        did_not_understand: 0.1,
+        understood_a_little: 0.1,
+        understood_most_of_it: 0.4
+        # missing understood_very_well
+      }
+      data = Glare::UxMetrics::Comprehension::Parser.new(choices: incomplete_data)
+      expect(data.valid?).to eq(false)
+    end
+
+    it "returns valid data" do
+      data = Glare::UxMetrics::Comprehension::Parser.new(
+        choices: comprehension_data
+      ).parse
+      expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
+    end
+
+    it "calculates result correctly" do
+      data = Glare::UxMetrics::Comprehension::Parser.new(
+        choices: comprehension_data
+      )
+      
+      # Calculate expected result based on implementation
+      positive_impressions = comprehension_data[:understood_very_well] + 
+                             comprehension_data[:understood_most_of_it]
+      negative_impressions = comprehension_data[:did_not_understand] + 
+                             comprehension_data[:understood_a_little]
+      
+      expected_result = positive_impressions - negative_impressions
+      
+      expect(data.result).to be_within(0.001).of(expected_result)
+    end
+
+    it "assigns 'High' label for result > 0.7" do
+      high_score_data = {
+        did_not_understand: 0.05,
+        understood_a_little: 0.05,
+        understood_most_of_it: 0.4,
+        understood_very_well: 0.5
+      }
+      
+      data = Glare::UxMetrics::Comprehension::Parser.new(
+        choices: high_score_data
+      ).parse
+      
+      expect(data.threshold).to eq("positive")
+      expect(data.label).to eq("High")
+    end
+
+    it "assigns 'Average' label for result > 0.4 and <= 0.7" do
+      medium_score_data = {
+        did_not_understand: 0.1,
+        understood_a_little: 0.1,
+        understood_most_of_it: 0.3,
+        understood_very_well: 0.5
+      }
+      
+      data = Glare::UxMetrics::Comprehension::Parser.new(
+        choices: medium_score_data
+      ).parse
+      
+      expect(data.threshold).to eq("neutral")
+      expect(data.label).to eq("Average")
+    end
+
+    it "assigns 'Low' label for result <= 0.4" do
+      low_score_data = {
+        did_not_understand: 0.3,
+        understood_a_little: 0.3,
+        understood_most_of_it: 0.2,
+        understood_very_well: 0.2
+      }
+      
+      data = Glare::UxMetrics::Comprehension::Parser.new(
+        choices: low_score_data
+      ).parse
+      
+      expect(data.threshold).to eq("negative")
+      expect(data.label).to eq("Low")
+    end
+  end
+
   describe Glare::UxMetrics::Desirability do
     context "Parser Versioning" do
       it "defaults to V2::Parser" do
