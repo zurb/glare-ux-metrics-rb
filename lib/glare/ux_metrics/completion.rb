@@ -42,17 +42,19 @@ module Glare
         end
 
         class InvalidDataError < Error
-          def initialize(msg = "#{data.to_json} is not valid. Correct data format is: \n\n#{correct_data}")
-            super(msg)
+          def initialize(data, msg = nil)
+            @data = data
+            super(msg || "#{data.to_json} is not valid. Correct data format is: \n\n#{correct_data}")
           end
+
+          private
+
+          attr_reader :data
 
           def correct_data
             {
-              very_satisfied: "string|integer|float",
-              somewhat_satisfied: "string|integer|float",
-              neutral: "string|integer|float",
-              somewhat_dissatisfied: "string|integer|float",
-              very_dissatisfied: "string|integer|float",
+              direct_success: "float",
+              indirect_success: "float"
             }.to_json
           end
         end
@@ -67,7 +69,7 @@ module Glare
           end
 
           def validate!
-            raise InvalidDataError unless valid?
+            raise InvalidDataError, data unless valid?
           end
       end
     end

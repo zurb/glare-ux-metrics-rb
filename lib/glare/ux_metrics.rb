@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "json"
+
 require "glare/util"
 require "glare/ux_metrics/base"
 

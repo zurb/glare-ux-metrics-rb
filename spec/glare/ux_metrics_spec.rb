@@ -969,6 +969,23 @@ RSpec.describe Glare::UxMetrics do
       ).parse
       expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
     end
+
+    it "raises InvalidDataError with correct data when validation fails" do
+      invalid_data = {
+        nps_question: [],
+        npa_question: {},
+        market_recognition_question: {}
+      }
+      parser = Glare::UxMetrics::BrandScore::Parser.new(
+        nps_question: invalid_data[:nps_question],
+        market_recognition_question: invalid_data[:market_recognition_question],
+        npa_question: invalid_data[:npa_question]
+      )
+      
+      expect { parser.parse }.to raise_error(Glare::UxMetrics::BrandScore::Parser::InvalidDataError) do |error|
+        expect(error.message).to include("Correct data format is")
+      end
+    end
   end
 
   describe Glare::UxMetrics::Completion do
