@@ -437,31 +437,31 @@ RSpec.describe Glare::UxMetrics do
     end
 
     let(:desirability_data_as_nps_section) do
-      [0.20, 0.30, 0.30, 0.5, 0.05, 0, 0, 0, 0.1, 0.05]
+      [0.20, 0.30, 0.30, 0.5, 0.05, 0, 0, 0, 0.1, 0.05, 0.005]
     end
 
     let(:desirability_data_as_nps_section_2) do
-      [0.20, 0.30, 0.30, 0.50, 0.05, 0, 0, 0, 0.1, 0.05]
+      [0.20, 0.30, 0.30, 0.50, 0.05, 0, 0, 0, 0.1, 0.05, 0.005]
     end
 
     let(:desirability_data_as_nps_section_3) do
-      [0.20, 0.30, 0.30, 0.50, 0.05, 0, 0, 0, 0.1, 0.05]
+      [0.20, 0.30, 0.30, 0.50, 0.05, 0, 0, 0, 0.1, 0.05, 0.005]
     end
 
     let(:desirability_data_as_nps_section_4) do
-      [0.3, 0.3, 0.3, 0.5, 0.05, 0, 0, 0, 0.1, 0.1]
+      [0.3, 0.3, 0.3, 0.5, 0.05, 0, 0, 0, 0.1, 0.1, 0.005]
     end
 
     let(:desirability_data_as_nps_section_5) do
-      [0.3, 0.3, 0.3, 0.5, 0.05, 0, 0, 0, 0.1, 0.1]
+      [0.3, 0.3, 0.3, 0.5, 0.05, 0, 0, 0, 0.1, 0.1, 0.005]
     end
 
     let(:desirability_data_as_nps_section_6) do
-      [0, 0, 0.3, 0.5, 0.05, 0, 0, 0, 0.1, 0.1]
+      [0, 0, 0.3, 0.5, 0.05, 0, 0, 0, 0.1, 0.1, 0.005]
     end
 
     let(:desirability_data_as_nps_section_7) do
-      [0.5, 0.5, 0, 0, 0, 0, 0, 0, 0, 0]
+      [0.5, 0.04, 0, 0, 0, 0, 0, 0, 0, 0, 0.01]
     end
 
     let(:desirability_data_as_nps) do
@@ -905,7 +905,7 @@ RSpec.describe Glare::UxMetrics do
   describe Glare::UxMetrics::BrandScore do
     let(:brand_score_data) do
       [
-        [0.2, 0.3, 0.4, 0.4, 0.2, 0.2, 0.2, 0.2, 0.0, 0.2],
+        [0.2, 0.3, 0.4, 0.4, 0.2, 0.2, 0.2, 0.2, 0.0, 0.2, 0.005],
         [
           { selected: true, percent: 0.1 },
           { selected: false, percent: 0.1 },
@@ -1571,6 +1571,7 @@ RSpec.describe Glare::UxMetrics do
         0.1,
         0.01,
         0.02,
+        0.01,
         0.02 # lowest
       ]
     end
@@ -1593,7 +1594,7 @@ RSpec.describe Glare::UxMetrics do
     it "calculates NPS score correctly" do
       parser = Glare::UxMetrics::Loyalty::Parser.new(choices: loyalty_data)
       # Expected NPS = Promoters (0.1 + 0.2) - Detractors (0.09 + 0.05 + 0.1 + 0.01 + 0.02 + 0.02)
-      expected_score = (0.1 + 0.2) - (0.09 + 0.05 + 0.1 + 0.01 + 0.02 + 0.02)
+      expected_score = (0.1 + 0.2) - (0.09 + 0.05 + 0.1 + 0.01 + 0.02 + 0.01 + 0.02)
       expect(parser.nps_score).to be_within(0.001).of(expected_score)
     end
 
@@ -1607,6 +1608,7 @@ RSpec.describe Glare::UxMetrics do
         0.01,
         0.01,
         0.01,
+        0.005,
         0.005,
         0.005
       ]
@@ -1626,6 +1628,7 @@ RSpec.describe Glare::UxMetrics do
         0.02,
         0.02,
         0.01,
+        0.01,
         0.01
       ]
       data = Glare::UxMetrics::Loyalty::Parser.new(choices: avg_nps_data).parse
@@ -1644,6 +1647,7 @@ RSpec.describe Glare::UxMetrics do
         0.1,
         0.05,
         0.03,
+        0.02,
         0.02
       ]
       data = Glare::UxMetrics::Loyalty::Parser.new(choices: low_nps_data).parse
@@ -1657,7 +1661,7 @@ RSpec.describe Glare::UxMetrics do
       
       expect(breakdown[:promoters]).to be_within(0.001).of(0.1 + 0.2)
       expect(breakdown[:passives]).to be_within(0.001).of(0.1 + 0.05)
-      expect(breakdown[:detractors]).to be_within(0.001).of(0.09 + 0.05 + 0.1 + 0.01 + 0.02 + 0.02)
+      expect(breakdown[:detractors]).to be_within(0.001).of(0.09 + 0.05 + 0.1 + 0.01 + 0.02 + 0.01 + 0.02)
     end
   end
 end

@@ -26,7 +26,7 @@ module Glare
         def valid?
           return false unless npa_question.is_a?(Hash) && npa_question.keys.size == 8
 
-          return false unless nps_question.is_a?(Array) && nps_question.size == 10
+          return false unless nps_question.is_a?(Array) && nps_question.size == 11
 
           return false unless market_recognition_question.is_a?(Array)
 
@@ -109,6 +109,7 @@ module Glare
                 0.09,
                 0.05,
                 0.1,
+                0.01,
                 0.01,
                 0.02,
                 0.02 # lowest

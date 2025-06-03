@@ -11,7 +11,7 @@ module Glare
         attr_reader :choices
 
         def valid?
-          return false unless choices.is_a?(Array) && choices.size == 10
+          return false unless choices.is_a?(Array) && choices.size == 11
 
           true
         end
@@ -42,31 +42,37 @@ module Glare
           {
             promoters: choices[0..1].sum,
             passives: choices[2..3].sum,
-            detractors: choices[4..9].sum
+            detractors: choices[4..10].sum
           }
         end
 
         def nps_score
-          @nps_score ||= choices[0..1].sum - choices[4..9].sum
+          @nps_score ||= choices[0..1].sum - choices[4..10].sum
         end
 
         class InvalidDataError < Error
-          def initialize(msg = "#{data.to_json} is not valid. Correct data format is: \n\n#{correct_data}")
-            super(msg)
+          def initialize(data, msg = nil)
+            @data = data
+            super(msg || "#{data.to_json} is not valid. Correct data format is: \n\n#{correct_data}")
           end
+
+          private
+
+          attr_reader :data
 
           def correct_data
             [
-                0.1, # highest
-                0.2,
-                0.1,
-                0.05,
-                0.09,
-                0.05,
-                0.1,
-                0.01,
-                0.02,
-                0.02 # lowest
+              0.1, # highest
+              0.2,
+              0.1,
+              0.05,
+              0.09,
+              0.05,
+              0.1,
+              0.01,
+              0.02,
+              0.01,
+              0.02 # lowest
             ].to_json
           end
         end
@@ -80,7 +86,7 @@ module Glare
         end
 
         def validate!
-          raise InvalidDataError unless valid?
+          raise InvalidDataError, data unless valid?
         end
       end
     end

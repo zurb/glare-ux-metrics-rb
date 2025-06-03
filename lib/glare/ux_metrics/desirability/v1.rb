@@ -29,7 +29,7 @@ module Glare
 
                 true
               elsif question.is_a?(Array)
-                return false unless question.size == 10
+                return false unless question.size == 11
 
                 return false unless question.all? do |v|
                   return Glare::Util.str_is_integer?(v) if v.is_a?(String)
