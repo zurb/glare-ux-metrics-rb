@@ -39,6 +39,8 @@ module Glare
         end
 
         def parse
+          validate!
+
           result = nps_score + market_score + npa_score
 
           threshold = if result >= 3.0
@@ -88,7 +90,7 @@ module Glare
         end
 
         class InvalidDataError < Error
-          def initialize(msg = "Data not valid. Correct data format is: \n\n#{correct_data}")
+          def initialize(msg = "#{data.to_json} is not valid. Correct data format is: \n\n#{correct_data}")
             super(msg)
           end
 
@@ -127,6 +129,20 @@ module Glare
               ]
             }.to_json
           end
+        end
+
+        private
+
+        def data
+          @data ||= {
+            nps_question: nps_question,
+            market_recognition_question: market_recognition_question,
+            npa_question: npa_question
+          }
+        end
+
+        def validate!
+          raise InvalidDataError unless valid?
         end
       end
     end

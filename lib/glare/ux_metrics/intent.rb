@@ -30,6 +30,8 @@ module Glare
         end
 
         def parse
+          validate!
+
           Result.new(result: result, threshold: threshold, label: label)
         end
 
@@ -64,20 +66,31 @@ module Glare
         end
 
         class InvalidDataError < Error
-          def initialize(msg = "Data not valid. Correct data format is: \n\n#{correct_data}")
+          def initialize(msg = "#{data.to_json} is not valid. Correct data format is: \n\n#{correct_data}")
             super(msg)
           end
 
           def correct_data
             {
               choices: {
-                very_frequently: "string|integer|float",
-                frequently: "string|integer|float",
-                occasionally: "string|integer|float",
-                rarely: "string|integer|float",
+                primary: "string|integer|float",
+                secondary: "string|integer|float",
+                tertiary: "string|integer|float",
               }
             }.to_json
           end
+        end
+
+        private
+
+        def data
+          @data ||= {
+            choices: choices
+          }
+        end
+
+        def validate!
+          raise InvalidDataError unless valid?
         end
       end
     end

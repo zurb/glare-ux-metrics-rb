@@ -25,6 +25,8 @@ module Glare
         end
 
         def parse
+          validate!
+
           primary_score = (primary_clicks_count / total_clicks_count.to_f) * PRIMARY_WEIGHT
           secondary_score = (secondary_clicks_count / total_clicks_count.to_f) * SECONDARY_WEIGHT
           tertiary_score = (tertiary_clicks_count / total_clicks_count.to_f) * TERTIARY_WEIGHT
@@ -51,19 +53,33 @@ module Glare
         end
 
         class InvalidDataError < Error
-          def initialize(msg = "Data not valid. Correct data format is: \n\n#{correct_data}")
+          def initialize(msg = "#{data.to_json} is not valid. Correct data format is: \n\n#{correct_data}")
             super(msg)
           end
 
           def correct_data
             {
-              very_satisfied: "string|integer|float",
-              somewhat_satisfied: "string|integer|float",
-              neutral: "string|integer|float",
-              somewhat_dissatisfied: "string|integer|float",
-              very_dissatisfied: "string|integer|float",
+              primary_clicks_count: "integer",
+              secondary_clicks_count: "integer",
+              tertiary_clicks_count: "integer",
+              total_clicks_count: "integer",
             }.to_json
           end
+        end
+
+        private
+
+        def data
+          @data ||= {
+            primary_clicks_count: primary_clicks_count,
+            secondary_clicks_count: secondary_clicks_count,
+            tertiary_clicks_count: tertiary_clicks_count,
+            total_clicks_count: total_clicks_count
+          }
+        end
+
+        def validate!
+          raise InvalidDataError unless valid?
         end
       end
     end
