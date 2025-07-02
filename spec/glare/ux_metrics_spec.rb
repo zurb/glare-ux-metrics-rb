@@ -1527,13 +1527,13 @@ RSpec.describe Glare::UxMetrics do
     it "calculates score correctly" do
       parser = Glare::UxMetrics::Effort::Parser.new(nps_question: effort_data)
       # Expected score = sum of choices / count of choices / 5
-      expected_score = effort_data[:choices].sum / effort_data[:choices].count.to_f / 5
+      expected_score = effort_data[:choices].sum / effort_data[:choices].count.to_f / 7
       expect(parser.parse.result).to be_within(0.001).of(expected_score)
     end
 
     it "assigns 'Excellent' label for score >= 0.8571" do
       high_score_data = {
-        choices: [5, 5, 5, 5, 5, 4, 4, 4]
+        choices: [7, 7, 7, 7, 7, 5, 5, 5]
       }
       data = Glare::UxMetrics::Effort::Parser.new(nps_question: high_score_data).parse
       expect(data.label).to eq("Excellent")
@@ -1542,7 +1542,7 @@ RSpec.describe Glare::UxMetrics do
 
     it "assigns 'Average' label for score >= 0.5714 and < 0.8571" do
       medium_score_data = {
-        choices: [4, 3, 3, 3, 3, 3, 2, 3]
+        choices: [6, 6, 5, 5, 5, 5, 4, 4]
       }
       data = Glare::UxMetrics::Effort::Parser.new(nps_question: medium_score_data).parse
       expect(data.label).to eq("Average")
