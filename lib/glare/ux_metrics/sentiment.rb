@@ -47,14 +47,7 @@ module Glare
         end
 
         def result
-          @result ||= choices[:helpful].to_f +
-                      choices[:innovative].to_f +
-                      choices[:simple].to_f +
-                      choices[:joyful].to_f -
-                      choices[:complicated].to_f -
-                      choices[:confusing].to_f -
-                      choices[:overwhelming].to_f -
-                      choices[:annoying].to_f
+          @result ||= total_positive_sentiment.to_f / (total_positive_sentiment.to_f + total_negative_sentiment.to_f)
         end
 
         def threshold
@@ -103,6 +96,20 @@ module Glare
 
         def validate!
           raise InvalidDataError, data unless valid?
+        end
+
+        def total_positive_sentiment
+          @total_positive_sentiment ||= choices[:helpful].to_f +
+                                        choices[:innovative].to_f +
+                                        choices[:simple].to_f +
+                                        choices[:joyful].to_f
+        end
+
+        def total_negative_sentiment
+          @total_negative_sentiment ||= choices[:complicated].to_f +
+                                        choices[:confusing].to_f +
+                                        choices[:overwhelming].to_f +
+                                        choices[:annoying].to_f
         end
       end
     end
