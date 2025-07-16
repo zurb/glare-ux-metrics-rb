@@ -20,26 +20,41 @@ module Glare
         def parse
           validate!
 
-          result = direct_success + indirect_success
-
-          label = if result > 0.9
-                    "Successful"
-                  elsif result >= 0.75
-                    "Avg"
-                  else
-                    "Failed"
-                  end
-
-          threshold = if label == "Successful"
-                        "positive"
-                      elsif label == "Avg"
-                        "neutral"
-                      else
-                        "negative"
-                      end
-
           Result.new(result: result, threshold: threshold, label: label)
         end
+         
+        def result
+          @result ||= direct_success + indirect_success
+        end
+
+        def threshold
+          @threshold ||= if result >= 0.9
+                           "very positive"
+                         elsif result >= 0.7
+                           "positive"
+                         elsif result >= 0.5
+                           "neutral"
+                         elsif result >= 0.3
+                           "negative"
+                         else
+                           "very negative"
+                         end
+        end
+
+        def label
+          @label ||= if threshold == "very positive"
+                       "Very Successful"
+                     elsif threshold == "positive"
+                       "Successful"
+                     elsif threshold == "neutral"
+                       "Avg"
+                     elsif threshold == "negative"
+                       "Somewhat Failed"
+                     else
+                       "Failed"
+                     end
+        end
+
 
         class InvalidDataError < Error
           def initialize(data, msg = nil)
