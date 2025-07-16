@@ -47,31 +47,34 @@ module Glare
         end
 
         def result
-          @result ||= choices[:joy].to_f +
-                      choices[:trust].to_f -
-                      choices[:anger].to_f -
-                      choices[:disgust].to_f -
-                      choices[:sadness].to_f -
-                      choices[:fear].to_f
+          @result ||= positive_sentiment / total_sentiment.to_f
         end
 
         def threshold
-          @threshold ||= if result > 0.3
+          @threshold ||= if result >= 0.9
+                           "very positive"
+                         elsif result >= 0.7
                            "positive"
-                         elsif result > 0.1
+                         elsif result >= 0.5
                            "neutral"
-                         else
+                         elsif result >= 0.3
                            "negative"
+                         else
+                           "very negative"
                          end
         end
 
         def label
-          @label ||= if threshold == "positive"
+          @label ||= if threshold == "very positive"
+                       "Very High Sentiment"
+                     elsif threshold == "positive"
                        "High Sentiment"
                      elsif threshold == "neutral"
                        "Avg Sentiment"
-                     else
+                     elsif threshold == "negative"
                        "Low Sentiment"
+                     else
+                       "Very Low Sentiment"
                      end
         end
 
@@ -111,6 +114,29 @@ module Glare
 
         def validate!
           raise InvalidDataError, data unless valid?
+        end
+
+        def positive_sentiment
+          @positive_sentiment ||= choices[:joy].to_f +
+                                  choices[:trust].to_f
+        end
+
+        def negative_sentiment
+          @negative_sentiment ||= choices[:anger].to_f +
+                                  choices[:disgust].to_f +
+                                  choices[:sadness].to_f +
+                                  choices[:fear].to_f
+        end
+
+        def neutral_sentiment
+          @neutral_sentiment ||= choices[:anticipation].to_f +
+                                 choices[:surprise].to_f
+        end
+
+        def total_sentiment
+          @total_sentiment ||= positive_sentiment.to_f +
+                               negative_sentiment.to_f +
+                               neutral_sentiment.to_f
         end
       end
     end
