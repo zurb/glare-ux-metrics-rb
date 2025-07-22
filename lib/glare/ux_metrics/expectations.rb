@@ -23,19 +23,27 @@ module Glare
         def parse
           validate!
 
-          threshold = if result > 0.3
+          threshold = if result > 0.9
+                        "very positive"
+                      elsif result > 0.7
                         "positive"
-                      elsif result > 0.1
+                      elsif result > 0.5
                         "neutral"
-                      else
+                      elsif result > 0.3
                         "negative"
+                      else
+                        "very negative"
                       end
 
-          label = if threshold == "positive"
+          label = if threshold == "very positive"
+                    "Very High"
+                  elsif threshold == "positive"
                     "High"
                   elsif threshold == "neutral"
                     "Met"
-                  else
+                  elsif threshold == "negative"
+                    "Fell Short"
+                  elsif threshold == "very negative"
                     "Failed"
                   end
 
@@ -44,13 +52,13 @@ module Glare
 
         def result
           @result ||= begin
-            positive_impressions = choices[:exceeded_expectations].to_f +
-                                    choices[:met_expectations].to_f
-            neutral_impressions = choices[:neutral].to_f
-            negative_impressions = choices[:failed_expectations].to_f +
-                                    choices[:fell_short_of_expectations].to_f
+            a = choices[:exceeded_expectations] * 5
+            b = choices[:met_expectations] * 4
+            c = choices[:neutral] * 3
+            d = choices[:fell_short_of_expectations] * 2
+            e = choices[:failed_expectations] * 1
 
-            positive_impressions - (neutral_impressions + negative_impressions)
+            (a + b + c + d + e) / 5
           end
         end
 

@@ -135,14 +135,15 @@ RSpec.describe Glare::UxMetrics do
         choices: expectations_data
       )
       
-      # Calculate expected result
-      positive_impressions = expectations_data[:exceeded_expectations] + 
-                             expectations_data[:met_expectations]
-      neutral_impressions = expectations_data[:neutral]
-      negative_impressions = expectations_data[:failed_expectations] + 
-                             expectations_data[:fell_short_of_expectations]
-      
-      expected_result = positive_impressions - (neutral_impressions + negative_impressions)
+      # Calculate expected result based on implementation
+      # Weighted average: (exceeded*5 + met*4 + neutral*3 + fell_short*2 + failed*1) / 5
+      expected_result = (
+        expectations_data[:exceeded_expectations] * 5 +
+        expectations_data[:met_expectations] * 4 +
+        expectations_data[:neutral] * 3 +
+        expectations_data[:fell_short_of_expectations] * 2 +
+        expectations_data[:failed_expectations] * 1
+      ) / 5.0
       
       expect(data.result).to be_within(0.001).of(expected_result)
     end
@@ -164,13 +165,13 @@ RSpec.describe Glare::UxMetrics do
       expect(data.label).to eq("High")
     end
 
-    it "assigns 'Met' label for result > 0.1 and <= 0.3" do
+    it "assigns 'Met' label for result > 0.5 and <= 0.7" do
       medium_score_data = {
         failed_expectations: 0.1,
         fell_short_of_expectations: 0.1,
-        neutral: 0.2,
+        neutral: 0.3,
         met_expectations: 0.3,
-        exceeded_expectations: 0.3
+        exceeded_expectations: 0.2
       }
       
       data = Glare::UxMetrics::Expectations::Parser.new(
@@ -181,20 +182,20 @@ RSpec.describe Glare::UxMetrics do
       expect(data.label).to eq("Met")
     end
 
-    it "assigns 'Failed' label for result <= 0.1" do
+    it "assigns 'Failed' label for result <= 0.3" do
       low_score_data = {
-        failed_expectations: 0.3,
+        failed_expectations: 0.4,
         fell_short_of_expectations: 0.3,
         neutral: 0.2,
-        met_expectations: 0.1,
-        exceeded_expectations: 0.1
+        met_expectations: 0.05,
+        exceeded_expectations: 0.05
       }
       
       data = Glare::UxMetrics::Expectations::Parser.new(
         choices: low_score_data
       ).parse
       
-      expect(data.threshold).to eq("negative")
+      expect(data.threshold).to eq("very negative")
       expect(data.label).to eq("Failed")
     end
   end
