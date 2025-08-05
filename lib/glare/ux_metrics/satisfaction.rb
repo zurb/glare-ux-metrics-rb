@@ -23,28 +23,39 @@ module Glare
 
         def parse
           validate!
-
-          threshold = if result > 0.8
-                        "positive"
-                      elsif result > 0.6
-                        "neutral"
-                      else
-                        "negative"
-                      end
-
-          label = if threshold == "positive"
-                    "High"
-                  elsif threshold == "neutral"
-                    "Avg"
-                  else
-                    "Low"
-                  end
-
           Result.new(result: result, threshold: threshold, label: label)
         end
 
         def result
           @result ||= choices[:very_satisfied].to_f + choices[:somewhat_satisfied].to_f
+        end
+
+        def threshold
+          @threshold ||= if result >= 0.9
+                           "very positive"
+                         elsif result >= 0.7
+                           "positive"
+                         elsif result >= 0.5
+                           "neutral"
+                         elsif result >= 0.3
+                           "negative"
+                         else
+                           "very negative"
+                         end
+        end
+
+        def label
+          @label ||= if threshold == "very positive"
+                       "Very High"
+                     elsif threshold == "positive"
+                       "High"
+                     elsif threshold == "neutral"
+                       "Avg"
+                     elsif threshold == "negative"
+                       "Low"
+                     else
+                       "Very Low"
+                     end
         end
 
         class InvalidDataError < Error

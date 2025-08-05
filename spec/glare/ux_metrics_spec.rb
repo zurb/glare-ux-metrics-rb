@@ -270,12 +270,12 @@ RSpec.describe Glare::UxMetrics do
       expect(data.label).to eq("High")
     end
 
-    it "assigns 'Avg' label for result > 0.6 and <= 0.8" do
+    it "assigns 'Avg' label for result > 0.5 and <= 0.7" do
       medium_score_data = {
         very_dissatisfied: 0.1,
         somewhat_dissatisfied: 0.1,
-        neutral: 0.1,
-        somewhat_satisfied: 0.3,
+        neutral: 0.2,
+        somewhat_satisfied: 0.2,
         very_satisfied: 0.4
       }
 
