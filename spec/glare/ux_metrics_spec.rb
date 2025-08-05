@@ -350,13 +350,11 @@ RSpec.describe Glare::UxMetrics do
         choices: comprehension_data
       )
 
-      # Calculate expected result based on implementation
-      positive_impressions = comprehension_data[:understood_very_well] +
-                             comprehension_data[:understood_most_of_it]
-      negative_impressions = comprehension_data[:did_not_understand] +
-                             comprehension_data[:understood_a_little]
-
-      expected_result = positive_impressions - negative_impressions
+      # Calculate expected result based on weighted average implementation
+      expected_result = ((comprehension_data[:understood_very_well] * 4) +
+                        (comprehension_data[:understood_most_of_it] * 3) +
+                        (comprehension_data[:understood_a_little] * 2) +
+                        (comprehension_data[:did_not_understand] * 1)) / 4
 
       expect(data.result).to be_within(0.001).of(expected_result)
     end
@@ -377,7 +375,7 @@ RSpec.describe Glare::UxMetrics do
       expect(data.label).to eq("High")
     end
 
-    it "assigns 'Average' label for result > 0.4 and <= 0.7" do
+    it "assigns 'High' label for result > 0.7" do
       medium_score_data = {
         did_not_understand: 0.1,
         understood_a_little: 0.1,
@@ -389,11 +387,11 @@ RSpec.describe Glare::UxMetrics do
         choices: medium_score_data
       ).parse
 
-      expect(data.threshold).to eq("neutral")
-      expect(data.label).to eq("Average")
+      expect(data.threshold).to eq("positive")
+      expect(data.label).to eq("High")
     end
 
-    it "assigns 'Low' label for result <= 0.4" do
+    it "assigns 'Average' label for result > 0.5 and <= 0.7" do
       low_score_data = {
         did_not_understand: 0.3,
         understood_a_little: 0.3,
@@ -403,6 +401,22 @@ RSpec.describe Glare::UxMetrics do
 
       data = Glare::UxMetrics::Comprehension::Parser.new(
         choices: low_score_data
+      ).parse
+
+      expect(data.threshold).to eq("neutral")
+      expect(data.label).to eq("Average")
+    end
+
+    it "assigns 'Low' label for result <= 0.5" do
+      very_low_score_data = {
+        did_not_understand: 0.4,
+        understood_a_little: 0.4,
+        understood_most_of_it: 0.1,
+        understood_very_well: 0.1
+      }
+
+      data = Glare::UxMetrics::Comprehension::Parser.new(
+        choices: very_low_score_data
       ).parse
 
       expect(data.threshold).to eq("negative")

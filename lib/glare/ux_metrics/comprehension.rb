@@ -23,36 +23,42 @@ module Glare
 
         def parse
           validate!
-
-          threshold = if result > 0.7
-                        "positive"
-                      elsif result > 0.4
-                        "neutral"
-                      else
-                        "negative"
-                      end
-
-          label = if threshold == "positive"
-                    "High"
-                  elsif threshold == "neutral"
-                    "Average"
-                  else
-                    "Low"
-                  end
-
           Result.new(result: result, threshold: threshold, label: label)
         end
 
         def result
-          @result ||= begin
-            positive_impressions = choices[:understood_very_well].to_f +
-                                    choices[:understood_most_of_it].to_f
+          @result ||= ((choices[:understood_very_well].to_f * 4) +
+                        (choices[:understood_most_of_it].to_f * 3) +
+                        (choices[:understood_a_little].to_f * 2) +
+                        (choices[:did_not_understand].to_f * 1)) / 4
+        end
 
-            negative_impressions = choices[:did_not_understand].to_f +
-                                    choices[:understood_a_little].to_f
+        def threshold
+          @threshold ||= if result > 0.9
+                           "very positive"
+                         elsif result > 0.7
+                           "positive"
+                          elsif result > 0.5
+                           "neutral"
+                         elsif result > 0.3
+                           "negative"
+                         else
+                           "very negative"
+                         end
+        end
 
-            positive_impressions - negative_impressions
-          end
+        def label
+          @label ||= if threshold == "very positive"
+                       "Very High"
+                     elsif threshold == "positive"
+                       "High"
+                     elsif threshold == "neutral"
+                       "Average"
+                     elsif threshold == "negative"
+                       "Low"
+                     else
+                       "Very Low"
+                     end
         end
 
         class InvalidDataError < Error
