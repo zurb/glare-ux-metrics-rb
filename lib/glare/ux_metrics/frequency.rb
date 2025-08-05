@@ -36,29 +36,38 @@ module Glare
         end
 
         def result
-          @result ||= choices[:very_frequently].to_f +
-                      choices[:frequently].to_f -
-                      choices[:occasionally].to_f -
-                      choices[:rarely].to_f
+          @result ||= ((choices[:very_frequently].to_f * 5) +
+                      (choices[:frequently].to_f * 4) +
+                      (choices[:occasionally].to_f * 3) +
+                      (choices[:rarely].to_f * 2) +
+                      choices[:very_frequently].to_f) / 5
         end
 
         def threshold
-          @threshold ||= if result > 0.3
+          @threshold ||= if result > 0.9
+                           "very positive"
+                         elsif result > 0.7
                            "positive"
-                         elsif result >= 0.1
+                         elsif result > 0.5
                            "neutral"
-                         else
+                         elsif result > 0.3
                            "negative"
+                         else
+                           "very negative"
                          end
         end
 
         def label
-          @label ||= if threshold == "positive"
+          @label ||= if threshold == "very positive"
+                       "Very High"
+                     elsif threshold == "positive"
                        "High"
                      elsif threshold == "neutral"
                        "Avg"
-                     else
+                     elsif threshold == "negative"
                        "Low"
+                     else
+                       "Very Low"
                      end
         end
 
