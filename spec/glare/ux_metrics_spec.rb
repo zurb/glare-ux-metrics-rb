@@ -13,7 +13,7 @@ RSpec.describe Glare::UxMetrics do
         complicated: 0.1,
         confusing: 0.1,
         overwhelming: 0.1,
-        annoying: 0.1,
+        annoying: 0.1
       }
     end
 
@@ -24,15 +24,15 @@ RSpec.describe Glare::UxMetrics do
 
     it "invalidates non float/integer-like values" do
       data = Glare::UxMetrics::Sentiment::Parser.new(choices: {
-        helpful: 0.1,
-        innovative: 0.1,
-        simple: 0.1,
-        joyful: 0.1,
-        complicated: 0.1,
-        confusing: 0.1,
-        overwhelming: 0.1,
-        annoying: "hi"
-      })
+                                                       helpful: 0.1,
+                                                       innovative: 0.1,
+                                                       simple: 0.1,
+                                                       joyful: 0.1,
+                                                       complicated: 0.1,
+                                                       confusing: 0.1,
+                                                       overwhelming: 0.1,
+                                                       annoying: "hi"
+                                                     })
       expect(data.valid?).to eq(false)
     end
 
@@ -73,12 +73,12 @@ RSpec.describe Glare::UxMetrics do
 
     it "invalidates non float/integer-like values" do
       data = Glare::UxMetrics::Feeling::Parser.new(choices: {
-        very_easy: 0.3,
-        somewhat_easy: 0.4,
-        neutral: 0.1,
-        somewhat_difficult: 0.1,
-        very_difficult: "hi"
-      })
+                                                     very_easy: 0.3,
+                                                     somewhat_easy: 0.4,
+                                                     neutral: 0.1,
+                                                     somewhat_difficult: 0.1,
+                                                     very_difficult: "hi"
+                                                   })
       expect(data.valid?).to eq(false)
     end
 
@@ -134,7 +134,7 @@ RSpec.describe Glare::UxMetrics do
       data = Glare::UxMetrics::Expectations::Parser.new(
         choices: expectations_data
       )
-      
+
       # Calculate expected result based on implementation
       # Weighted average: (exceeded*5 + met*4 + neutral*3 + fell_short*2 + failed*1) / 5
       expected_result = (
@@ -144,7 +144,7 @@ RSpec.describe Glare::UxMetrics do
         expectations_data[:fell_short_of_expectations] * 2 +
         expectations_data[:failed_expectations] * 1
       ) / 5.0
-      
+
       expect(data.result).to be_within(0.001).of(expected_result)
     end
 
@@ -156,11 +156,11 @@ RSpec.describe Glare::UxMetrics do
         met_expectations: 0.3,
         exceeded_expectations: 0.5
       }
-      
+
       data = Glare::UxMetrics::Expectations::Parser.new(
         choices: high_score_data
       ).parse
-      
+
       expect(data.threshold).to eq("positive")
       expect(data.label).to eq("High")
     end
@@ -173,11 +173,11 @@ RSpec.describe Glare::UxMetrics do
         met_expectations: 0.3,
         exceeded_expectations: 0.2
       }
-      
+
       data = Glare::UxMetrics::Expectations::Parser.new(
         choices: medium_score_data
       ).parse
-      
+
       expect(data.threshold).to eq("neutral")
       expect(data.label).to eq("Met")
     end
@@ -190,11 +190,11 @@ RSpec.describe Glare::UxMetrics do
         met_expectations: 0.05,
         exceeded_expectations: 0.05
       }
-      
+
       data = Glare::UxMetrics::Expectations::Parser.new(
         choices: low_score_data
       ).parse
-      
+
       expect(data.threshold).to eq("very negative")
       expect(data.label).to eq("Failed")
     end
@@ -246,10 +246,10 @@ RSpec.describe Glare::UxMetrics do
       data = Glare::UxMetrics::Satisfaction::Parser.new(
         choices: satisfaction_data
       )
-      
+
       # Calculate expected result based on implementation
       expected_result = satisfaction_data[:very_satisfied] + satisfaction_data[:somewhat_satisfied]
-      
+
       expect(data.result).to be_within(0.001).of(expected_result)
     end
 
@@ -261,11 +261,11 @@ RSpec.describe Glare::UxMetrics do
         somewhat_satisfied: 0.35,
         very_satisfied: 0.5
       }
-      
+
       data = Glare::UxMetrics::Satisfaction::Parser.new(
         choices: high_score_data
       ).parse
-      
+
       expect(data.threshold).to eq("positive")
       expect(data.label).to eq("High")
     end
@@ -278,11 +278,11 @@ RSpec.describe Glare::UxMetrics do
         somewhat_satisfied: 0.3,
         very_satisfied: 0.4
       }
-      
+
       data = Glare::UxMetrics::Satisfaction::Parser.new(
         choices: medium_score_data
       ).parse
-      
+
       expect(data.threshold).to eq("neutral")
       expect(data.label).to eq("Avg")
     end
@@ -295,11 +295,11 @@ RSpec.describe Glare::UxMetrics do
         somewhat_satisfied: 0.2,
         very_satisfied: 0.2
       }
-      
+
       data = Glare::UxMetrics::Satisfaction::Parser.new(
         choices: low_score_data
       ).parse
-      
+
       expect(data.threshold).to eq("negative")
       expect(data.label).to eq("Low")
     end
@@ -349,15 +349,15 @@ RSpec.describe Glare::UxMetrics do
       data = Glare::UxMetrics::Comprehension::Parser.new(
         choices: comprehension_data
       )
-      
+
       # Calculate expected result based on implementation
-      positive_impressions = comprehension_data[:understood_very_well] + 
+      positive_impressions = comprehension_data[:understood_very_well] +
                              comprehension_data[:understood_most_of_it]
-      negative_impressions = comprehension_data[:did_not_understand] + 
+      negative_impressions = comprehension_data[:did_not_understand] +
                              comprehension_data[:understood_a_little]
-      
+
       expected_result = positive_impressions - negative_impressions
-      
+
       expect(data.result).to be_within(0.001).of(expected_result)
     end
 
@@ -368,11 +368,11 @@ RSpec.describe Glare::UxMetrics do
         understood_most_of_it: 0.4,
         understood_very_well: 0.5
       }
-      
+
       data = Glare::UxMetrics::Comprehension::Parser.new(
         choices: high_score_data
       ).parse
-      
+
       expect(data.threshold).to eq("positive")
       expect(data.label).to eq("High")
     end
@@ -384,11 +384,11 @@ RSpec.describe Glare::UxMetrics do
         understood_most_of_it: 0.3,
         understood_very_well: 0.5
       }
-      
+
       data = Glare::UxMetrics::Comprehension::Parser.new(
         choices: medium_score_data
       ).parse
-      
+
       expect(data.threshold).to eq("neutral")
       expect(data.label).to eq("Average")
     end
@@ -400,11 +400,11 @@ RSpec.describe Glare::UxMetrics do
         understood_most_of_it: 0.2,
         understood_very_well: 0.2
       }
-      
+
       data = Glare::UxMetrics::Comprehension::Parser.new(
         choices: low_score_data
       ).parse
-      
+
       expect(data.threshold).to eq("negative")
       expect(data.label).to eq("Low")
     end
@@ -433,7 +433,7 @@ RSpec.describe Glare::UxMetrics do
         desirability_data_section,
         desirability_data_section,
         desirability_data_section,
-        desirability_data_section,
+        desirability_data_section
       ]
     end
 
@@ -473,7 +473,7 @@ RSpec.describe Glare::UxMetrics do
         desirability_data_as_nps_section_4,
         desirability_data_as_nps_section_5,
         desirability_data_as_nps_section_6,
-        desirability_data_as_nps_section_7,
+        desirability_data_as_nps_section_7
       ]
     end
 
@@ -784,14 +784,14 @@ RSpec.describe Glare::UxMetrics do
         data = Glare::UxMetrics::Desirability::V2::Parser.new(
           questions: [sentiment_question, likert_question]
         )
-       expect(data.breakdown.size).to eq(2)
+        expect(data.breakdown.size).to eq(2)
       end
 
       it "returns a sentiment and likert breakdown" do
         data = Glare::UxMetrics::Desirability::V2::Parser.new(
           questions: [sentiment_question, likert_question]
         )
-        expect(data.breakdown.keys.sort).to eq([:sentiment_score, :likert_score].sort)
+        expect(data.breakdown.keys.sort).to eq(%i[sentiment_score likert_score].sort)
       end
 
       it "sentiment is between 0.0 and 1.0" do
@@ -817,13 +817,13 @@ RSpec.describe Glare::UxMetrics do
         somewhat_satisfied: 0.1,
         neutral: 0.1,
         somewhat_dissatisfied: 0.1,
-        very_dissatisfied: 0.1,
+        very_dissatisfied: 0.1
       }
     end
 
     it "validates valid post-task satisfaction data" do
       data = Glare::UxMetrics::PostTaskSatisfaction::Parser.new(
-        choices: post_task_satisfaction_data,
+        choices: post_task_satisfaction_data
       )
       expect(data.valid?).to eq(true)
     end
@@ -835,7 +835,7 @@ RSpec.describe Glare::UxMetrics do
 
     it "returns valid data" do
       data = Glare::UxMetrics::PostTaskSatisfaction::Parser.new(
-        choices: post_task_satisfaction_data,
+        choices: post_task_satisfaction_data
       ).parse
       expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
     end
@@ -848,13 +848,13 @@ RSpec.describe Glare::UxMetrics do
         somewhat_satisfied: 0.1,
         neutral: 0.1,
         somewhat_dissatisfied: 0.1,
-        very_dissatisfied: 0.1,
+        very_dissatisfied: 0.1
       }
     end
 
     it "validates valid reaction data" do
       data = Glare::UxMetrics::Reaction::Parser.new(
-        choices: reaction_data,
+        choices: reaction_data
       )
       expect(data.valid?).to eq(true)
     end
@@ -866,7 +866,7 @@ RSpec.describe Glare::UxMetrics do
 
     it "returns valid data" do
       data = Glare::UxMetrics::Reaction::Parser.new(
-        choices: reaction_data,
+        choices: reaction_data
       ).parse
       expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
     end
@@ -879,7 +879,7 @@ RSpec.describe Glare::UxMetrics do
         agree: 0.1,
         neutral: 0.1,
         disagree: 0.1,
-        strongly_disagree: 0.1,
+        strongly_disagree: 0.1
       }]
     end
 
@@ -925,8 +925,8 @@ RSpec.describe Glare::UxMetrics do
           complicated: 0.1,
           confusing: 0.1,
           overwhelming: 0.1,
-          annoying: 0.1,
-        },
+          annoying: 0.1
+        }
       ]
     end
 
@@ -934,7 +934,7 @@ RSpec.describe Glare::UxMetrics do
       data = Glare::UxMetrics::BrandScore::Parser.new(
         nps_question: brand_score_data[0],
         market_recognition_question: brand_score_data[1],
-        npa_question: brand_score_data[2],
+        npa_question: brand_score_data[2]
       )
       expect(data.valid?).to eq(true)
     end
@@ -943,7 +943,7 @@ RSpec.describe Glare::UxMetrics do
       data = Glare::UxMetrics::BrandScore::Parser.new(
         nps_question: [],
         npa_question: {},
-        market_recognition_question: {},
+        market_recognition_question: {}
       )
       expect(data.valid?).to eq(false)
     end
@@ -955,9 +955,9 @@ RSpec.describe Glare::UxMetrics do
           { selected: false, percent: 0.1 },
           { selected: false, percent: 0.1 },
           { selected: false, percent: 0.1 },
-          { selected: false, percent: 0.1 },
+          { selected: false, percent: 0.1 }
         ],
-        npa_question: brand_score_data[2],
+        npa_question: brand_score_data[2]
       )
       expect(data.valid?).to eq(false)
     end
@@ -966,7 +966,7 @@ RSpec.describe Glare::UxMetrics do
       data = Glare::UxMetrics::BrandScore::Parser.new(
         nps_question: brand_score_data[0],
         market_recognition_question: brand_score_data[1],
-        npa_question: brand_score_data[2],
+        npa_question: brand_score_data[2]
       ).parse
       expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
     end
@@ -982,7 +982,7 @@ RSpec.describe Glare::UxMetrics do
         market_recognition_question: invalid_data[:market_recognition_question],
         npa_question: invalid_data[:npa_question]
       )
-      
+
       expect { parser.parse }.to raise_error(Glare::UxMetrics::BrandScore::Parser::InvalidDataError) do |error|
         expect(error.message).to include("Correct data format is")
       end
@@ -993,14 +993,14 @@ RSpec.describe Glare::UxMetrics do
     let(:completion_data) do
       {
         direct_success: 0.5,
-        indirect_success: 0.3,
+        indirect_success: 0.3
       }
     end
 
     it "validates valid completion data" do
       data = Glare::UxMetrics::Completion::Parser.new(
         direct_success: completion_data[:direct_success],
-        indirect_success: completion_data[:indirect_success],
+        indirect_success: completion_data[:indirect_success]
       )
       expect(data.valid?).to eq(true)
     end
@@ -1013,7 +1013,7 @@ RSpec.describe Glare::UxMetrics do
     it "returns valid data" do
       data = Glare::UxMetrics::Completion::Parser.new(
         direct_success: completion_data[:direct_success],
-        indirect_success: completion_data[:indirect_success],
+        indirect_success: completion_data[:indirect_success]
       ).parse
       expect(data.result.is_a?(Float) && data.label.is_a?(String) && data.threshold.is_a?(String)).to eq(true)
     end
@@ -1066,7 +1066,7 @@ RSpec.describe Glare::UxMetrics do
         tertiary_clicks_count: data[:tertiary_clicks_count],
         total_clicks_count: data[:total_clicks_count]
       )
-      
+
       # Calculate expected score
       primary_score = (data[:primary_clicks_count] / data[:total_clicks_count].to_f) * Glare::UxMetrics::Engagement::Parser::PRIMARY_WEIGHT
       secondary_score = (data[:secondary_clicks_count] / data[:total_clicks_count].to_f) * Glare::UxMetrics::Engagement::Parser::SECONDARY_WEIGHT
@@ -1217,7 +1217,7 @@ RSpec.describe Glare::UxMetrics do
 
     it "calculates score correctly" do
       parser = Glare::UxMetrics::Usability::Parser.new(questions: usability_data)
-      
+
       # Calculate expected score
       expected_score = (
         (0.4 + 0.3) / 2 + # average primary
@@ -1318,7 +1318,7 @@ RSpec.describe Glare::UxMetrics do
 
     it "calculates score correctly" do
       parser = Glare::UxMetrics::Success::Parser.new(questions: success_data)
-      
+
       # Calculate expected score
       expected_score = (
         (0.4 + 0.3) / 2 + # average primary
@@ -1594,72 +1594,123 @@ RSpec.describe Glare::UxMetrics do
 
     it "calculates NPS score correctly" do
       parser = Glare::UxMetrics::Loyalty::Parser.new(choices: loyalty_data)
-      # Expected NPS = Promoters (0.1 + 0.2) - Detractors (0.09 + 0.05 + 0.1 + 0.01 + 0.02 + 0.02)
+      # Expected NPS = Promoters (0.1 + 0.2) - Detractors (0.09 + 0.05 + 0.1 + 0.01 + 0.02 + 0.01 + 0.02)
       expected_score = (0.1 + 0.2) - (0.09 + 0.05 + 0.1 + 0.01 + 0.02 + 0.01 + 0.02)
       expect(parser.nps_score).to be_within(0.001).of(expected_score)
     end
 
-    it "assigns 'High' label for NPS >= 0.3" do
-      high_nps_data = [
-        0.4, # promoters
-        0.4,
-        0.1, # passives
+    it "calculates normalized result correctly" do
+      parser = Glare::UxMetrics::Loyalty::Parser.new(choices: loyalty_data)
+      # Expected normalized result = ((nps_score * 100) + 100) / 200
+      nps_score = (0.1 + 0.2) - (0.09 + 0.05 + 0.1 + 0.01 + 0.02 + 0.01 + 0.02)
+      expected_result = ((nps_score * 100.0) + 100) / 200.0
+      expect(parser.result).to be_within(0.001).of(expected_result)
+    end
+
+    it "assigns 'Very High' label for result >= 0.9" do
+      # Need NPS = 0.8 for result = 0.9
+      very_high_data = [
+        0.85, # promoters
         0.05,
+        0.05, # passives
+        0.03,
         0.01, # detractors
         0.01,
-        0.01,
-        0.01,
-        0.005,
-        0.005,
-        0.005
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ]
-      data = Glare::UxMetrics::Loyalty::Parser.new(choices: high_nps_data).parse
+      data = Glare::UxMetrics::Loyalty::Parser.new(choices: very_high_data).parse
+      expect(data.label).to eq("Very High")
+      expect(data.threshold).to eq("very positive")
+    end
+
+    it "assigns 'High' label for result >= 0.7 and < 0.9" do
+      # Need NPS = 0.4 for result = 0.7
+      high_data = [
+        0.5, # promoters
+        0.0,
+        0.4, # passives
+        0.0,
+        0.1, # detractors
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+      data = Glare::UxMetrics::Loyalty::Parser.new(choices: high_data).parse
       expect(data.label).to eq("High")
       expect(data.threshold).to eq("positive")
     end
 
-    it "assigns 'Average' label for NPS >= 0.0 and < 0.3" do
-      avg_nps_data = [
+    it "assigns 'Average' label for result >= 0.5 and < 0.7" do
+      # Need NPS = 0.0 for result = 0.5
+      avg_data = [
         0.2, # promoters
-        0.2,
-        0.2, # passives
-        0.2,
-        0.1, # detractors
-        0.05,
-        0.02,
-        0.02,
-        0.01,
-        0.01,
-        0.01
+        0.0,
+        0.6, # passives
+        0.0,
+        0.2, # detractors
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ]
-      data = Glare::UxMetrics::Loyalty::Parser.new(choices: avg_nps_data).parse
+      data = Glare::UxMetrics::Loyalty::Parser.new(choices: avg_data).parse
       expect(data.label).to eq("Average")
       expect(data.threshold).to eq("neutral")
     end
 
-    it "assigns 'Low' label for NPS < 0.0" do
-      low_nps_data = [
+    it "assigns 'Low' label for result >= 0.3 and < 0.5" do
+      # Need NPS = -0.4 for result = 0.3
+      low_data = [
         0.1, # promoters
-        0.1,
-        0.1, # passives
-        0.1,
-        0.2, # detractors
-        0.2,
-        0.1,
-        0.05,
-        0.03,
-        0.02,
-        0.02
+        0.0,
+        0.4, # passives
+        0.0,
+        0.5, # detractors
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ]
-      data = Glare::UxMetrics::Loyalty::Parser.new(choices: low_nps_data).parse
+      data = Glare::UxMetrics::Loyalty::Parser.new(choices: low_data).parse
       expect(data.label).to eq("Low")
       expect(data.threshold).to eq("negative")
+    end
+
+    it "assigns 'Very Low' label for result < 0.3" do
+      # Need NPS < -0.4 for result < 0.3
+      very_low_data = [
+        0.05, # promoters
+        0.0,
+        0.2, # passives
+        0.0,
+        0.75, # detractors
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+      data = Glare::UxMetrics::Loyalty::Parser.new(choices: very_low_data).parse
+      expect(data.label).to eq("Very Low")
+      expect(data.threshold).to eq("very negative")
     end
 
     it "provides correct breakdown of promoters, passives, and detractors" do
       parser = Glare::UxMetrics::Loyalty::Parser.new(choices: loyalty_data)
       breakdown = parser.breakdown
-      
+
       expect(breakdown[:promoters]).to be_within(0.001).of(0.1 + 0.2)
       expect(breakdown[:passives]).to be_within(0.001).of(0.1 + 0.05)
       expect(breakdown[:detractors]).to be_within(0.001).of(0.09 + 0.05 + 0.1 + 0.01 + 0.02 + 0.01 + 0.02)

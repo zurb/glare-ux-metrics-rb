@@ -18,24 +18,7 @@ module Glare
 
         def parse
           validate!
-
-          threshold = if nps_score >= 0.3
-            "positive"
-          elsif nps_score >= 0.0
-            "neutral"
-          else
-            "negative"
-          end
-
-          label = if threshold == "positive"
-                    "High"
-                  elsif threshold == "neutral"
-                    "Average"
-                  else
-                    "Low"
-                  end
-
-          Result.new(result: nps_score, threshold: threshold, label: label)
+          Result.new(result: result, threshold: threshold, label: label)
         end
 
         def breakdown
@@ -44,6 +27,38 @@ module Glare
             passives: choices[2..3].sum,
             detractors: choices[4..10].sum
           }
+        end
+
+        def label
+          @label ||= if threshold == "very positive"
+                       "Very High"
+                     elsif threshold == "positive"
+                       "High"
+                     elsif threshold == "neutral"
+                       "Average"
+                     elsif threshold == "negative"
+                       "Low"
+                     else
+                       "Very Low"
+                     end
+        end
+
+        def threshold
+          @threshold ||= if result >= 0.9
+                           "very positive"
+                         elsif result >= 0.7
+                           "positive"
+                         elsif result >= 0.5
+                           "neutral"
+                         elsif result >= 0.3
+                           "negative"
+                         else
+                           "very negative"
+                         end
+        end
+
+        def result
+          @result ||= ((nps_score * 100.0) + 100) / 200.0
         end
 
         def nps_score
@@ -92,4 +107,3 @@ module Glare
     end
   end
 end
-
