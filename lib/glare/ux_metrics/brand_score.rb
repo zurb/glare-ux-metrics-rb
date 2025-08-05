@@ -40,26 +40,39 @@ module Glare
 
         def parse
           validate!
-
-          result = nps_score + market_score + npa_score
-
-          threshold = if result >= 3.0
-            'positive'
-          elsif result >= 2.0
-            'neutral'
-          else
-            'negative'
-          end
-
-          label = if threshold == "positive"
-                              "High"
-                            elsif threshold == "neutral"
-                              "Mid"
-                            else
-                              "Low"
-                            end
-
           Result.new(result: result, threshold: threshold, label: label)
+        end
+
+        def result
+          @result ||= (nps_score + market_score + npa_score) / 3.0
+        end
+
+        def threshold
+          @threshold ||= if result >= 0.9
+                           "very positive"
+                         elsif result >= 0.7
+                           "positive"
+                         elsif result >= 0.5
+                           "neutral"
+                         elsif result >= 0.3
+                           "negative"
+                         else
+                           "very negative"
+                         end
+        end
+
+        def label
+          @label ||= if threshold == "very positive"
+                       "Very High"
+                     elsif threshold == "positive"
+                       "High"
+                     elsif threshold == "neutral"
+                       "Mid"
+                     elsif threshold == "negative"
+                       "Low"
+                      else
+                       "Very Low"
+                     end
         end
 
         def breakdown
@@ -70,8 +83,12 @@ module Glare
           }
         end
 
+        def loyalty_score
+          ((nps_score * 100.0) + 100) / 200.0
+        end
+
         def nps_score
-          @nps_score ||= nps_question[0..1].sum # promoters only
+          @nps_score ||= nps_question[0..1].sum - nps_question[4..10].sum
         end
 
         def market_score
@@ -79,14 +96,15 @@ module Glare
         end
 
         def npa_score
-          @npa_score ||= npa_question[:helpful].to_f +
-                   npa_question[:innovative].to_f +
-                   npa_question[:simple].to_f +
-                   npa_question[:joyful].to_f -
-                   npa_question[:complicated].to_f -
-                   npa_question[:confusing].to_f -
-                   npa_question[:overwhelming].to_f -
-                   npa_question[:annoying].to_f
+          total_possible_percent = 4.0
+
+          @npa_score ||= begin
+                           total_possible_percent - 
+                             (npa_question[:helpful].to_f +
+                             npa_question[:innovative].to_f +
+                             npa_question[:simple].to_f +
+                             npa_question[:joyful].to_f)
+                         end
         end
 
         class InvalidDataError < Error
