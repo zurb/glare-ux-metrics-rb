@@ -68,7 +68,7 @@ module Glare
         def valid_question?(question)
           return false unless question.is_a?(Hash)
 
-          return false unless (question.keys.map(&:to_s) - CHOICE_KEYS).size.zero?
+          return false unless (question.keys.map(&:to_s) - CHOICE_KEYS).empty?
 
           true
         end
@@ -110,22 +110,30 @@ module Glare
         end
 
         def label
-          @label ||= if score >= 0.8
+          @label ||= if score >= 0.9
+                       "Very High"
+                     elsif score >= 0.7
                        "High"
-                     elsif score >= 0.6
+                     elsif score >= 0.5
                        "Average"
-                     else
+                     elsif score >= 0.3
                        "Low"
+                     else
+                       "Very Low"
                      end
         end
 
         def threshold
-          @threshold ||= if label == "High"
+          @threshold ||= if score >= 0.9
+                           "very positive"
+                         elsif score >= 0.7
                            "positive"
-                         elsif label == "Average"
+                         elsif score >= 0.5
                            "neutral"
-                         else
+                         elsif score >= 0.3
                            "negative"
+                         else
+                           "very negative"
                          end
         end
       end
