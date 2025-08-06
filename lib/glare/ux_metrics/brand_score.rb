@@ -44,7 +44,7 @@ module Glare
         end
 
         def result
-          @result ||= (nps_score + market_score + npa_score) / 3.0
+          @result ||= (loyalty_score + market_score + npa_score) / 3.0
         end
 
         def threshold
@@ -84,7 +84,7 @@ module Glare
         end
 
         def loyalty_score
-          ((nps_score * 100.0) + 100) / 200.0
+          @loyalty_score ||= (nps_score + 1.0) / 2.0
         end
 
         def nps_score
@@ -99,11 +99,10 @@ module Glare
           total_possible_percent = 4.0
 
           @npa_score ||= begin
-                           total_possible_percent - 
                              (npa_question[:helpful].to_f +
                              npa_question[:innovative].to_f +
                              npa_question[:simple].to_f +
-                             npa_question[:joyful].to_f)
+                             npa_question[:joyful].to_f) / total_possible_percent
                          end
         end
 
