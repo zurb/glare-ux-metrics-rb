@@ -80,6 +80,7 @@ module Glare
             nps: nps_score,
             market_recognition: market_score,
             npa: npa_score,
+            loyalty: loyalty_score,
           }
         end
 
@@ -96,14 +97,23 @@ module Glare
         end
 
         def npa_score
-          total_possible_percent = 4.0
-
           @npa_score ||= begin
                              (npa_question[:helpful].to_f +
                              npa_question[:innovative].to_f +
                              npa_question[:simple].to_f +
-                             npa_question[:joyful].to_f) / total_possible_percent
+                             npa_question[:joyful].to_f) / npa_total_impressions
                          end
+        end
+
+        def npa_total_impressions
+          @npa_total_impressions ||= npa_question[:helpful].to_f +
+                                       npa_question[:innovative].to_f +
+                                       npa_question[:simple].to_f +
+                                       npa_question[:joyful].to_f +
+                                       npa_question[:complicated].to_f +
+                                       npa_question[:confusing].to_f +
+                                       npa_question[:overwhelming].to_f +
+                                       npa_question[:annoying].to_f
         end
 
         class InvalidDataError < Error
