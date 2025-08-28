@@ -75,32 +75,45 @@ module Glare
 
         def score
           @score ||= begin
-            avg_primary_score = questions.map { |question| question[:average_primary_percentage] }.sum / questions.size
-            avg_secondary_score = questions.map { |question| question[:average_secondary_percentage] }.sum / questions.size
-            avg_tertiary_score = questions.map { |question| question[:average_tertiary_percentage] }.sum / questions.size
+            primary_percentages = questions.reject { |question| question[:average_primary_percentage].nil? }.map { |question| question[:average_primary_percentage] }
+            secondary_percentages = questions.reject { |question| question[:average_secondary_percentage].nil? }.map { |question| question[:average_secondary_percentage] }
+            tertiary_percentages = questions.reject { |question| question[:average_tertiary_percentage].nil? }.map { |question| question[:average_tertiary_percentage] }
 
-            (avg_primary_score + avg_secondary_score + avg_tertiary_score) / 3
+
+            non_nil_percentages = primary_percentages + secondary_percentages + tertiary_percentages
+
+            return 0 if non_nil_percentages.empty?
+
+            non_nil_percentages.sum / non_nil_percentages.size
           end
         end
 
         def label
-          @label ||= if score >= 0.8
-            "Good"
-          elsif score >= 0.6
-            "Avg"
-          else
-            "Low"
-          end
+          @label ||= if threshold == "very positive"
+                       "Very Good"
+                     elsif threshold == "positive"
+                       "Good"
+                     elsif threshold == "neutral"
+                       "Avg"
+                     elsif threshold == "negative"
+                       "Low"
+                     else
+                       "Very Low"
+                     end
         end
 
         def threshold
-          @threshold ||= if label == "Good"
-            "positive"
-          elsif label == "Avg"
-            "neutral"
-          else
-            "negative"
-          end
+          @threshold ||= if score >= 0.9
+                           "very positive"
+                         elsif score >= 0.7
+                           "positive"
+                         elsif score >= 0.5
+                           "neutral"
+                         elsif score >= 0.3
+                           "negative"
+                         else
+                           "very negative"
+                         end
         end
       end
     end

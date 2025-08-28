@@ -2,6 +2,6 @@
 
 module Glare
   module UxMetrics
-    VERSION = "0.33.2"
+    VERSION = "0.33.3"
   end
 end
