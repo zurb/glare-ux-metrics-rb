@@ -75,16 +75,8 @@ module Glare
 
         def score
           @score ||= begin
-            primary_percentages = questions.reject { |question| question[:average_primary_percentage].nil? }.map { |question| question[:average_primary_percentage] }
-            secondary_percentages = questions.reject { |question| question[:average_secondary_percentage].nil? }.map { |question| question[:average_secondary_percentage] }
-            tertiary_percentages = questions.reject { |question| question[:average_tertiary_percentage].nil? }.map { |question| question[:average_tertiary_percentage] }
-
-
-            non_nil_percentages = primary_percentages + secondary_percentages + tertiary_percentages
-
-            return 0 if non_nil_percentages.empty?
-
-            non_nil_percentages.sum / non_nil_percentages.size
+            totals = questions.map { |question| question[:average_primary_percentage] + question[:average_secondary_percentage] + question[:average_tertiary_percentage] }
+            totals.sum / totals.size
           end
         end
 
