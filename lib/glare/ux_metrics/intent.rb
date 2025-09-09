@@ -46,22 +46,30 @@ module Glare
         end
 
         def threshold
-          @threshold ||= if result > 0.6
+          @threshold ||= if result > 0.9
+                           "very positive"
+                         elsif result >= 0.7
                            "positive"
-                         elsif result >= 0.4
+                         elsif result >= 0.5
                            "neutral"
-                         else
+                         elsif result >= 0.3
                            "negative"
+                         else
+                           "very negative"
                          end
         end
 
         def label
-          @label ||= if threshold == "positive"
+          @label ||= if threshold == "very positive"
+                       "Very High Intent"
+                     elsif threshold == "positive"
                        "High Intent"
                      elsif threshold == "neutral"
                        "Avg Intent"
-                     else
+                     elsif threshold == "negative"
                        "Low Intent"
+                     else
+                       "Very Low Intent"
                      end
         end
 

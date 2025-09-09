@@ -1461,9 +1461,9 @@ RSpec.describe Glare::UxMetrics do
 
     it "assigns 'High Intent' label for score > 0.6" do
       high_score_data = {
-        primary: 0.9,
-        secondary: 0.8,
-        tertiary: 0.7
+        primary: 0.6,
+        secondary: 0.3,
+        tertiary: 0.0
       }
       data = Glare::UxMetrics::Intent::Parser.new(choices: high_score_data).parse
       expect(data.label).to eq("High Intent")
@@ -1483,8 +1483,8 @@ RSpec.describe Glare::UxMetrics do
 
     it "assigns 'Low Intent' label for score < 0.4" do
       low_score_data = {
-        primary: 0.2,
-        secondary: 0.1,
+        primary: 0.3,
+        secondary: 0.15,
         tertiary: 0.0
       }
       data = Glare::UxMetrics::Intent::Parser.new(choices: low_score_data).parse
