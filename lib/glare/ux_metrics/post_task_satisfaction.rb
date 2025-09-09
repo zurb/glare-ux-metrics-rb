@@ -36,20 +36,28 @@ module Glare
                    choices[:somewhat_dissatisfied].to_f -
                    choices[:very_dissatisfied].to_f
 
-         threshold = if result >= 0.7
+         threshold = if result >= 0.9
+                       "very positive"
+                     elsif result >= 0.7
                        "positive"
-                     elsif result > 0.5
+                     elsif result >= 0.5
                        "neutral"
-                     else
+                     elsif result >= 0.3
                        "negative"
+                     else
+                       "very negative"
                      end
 
-          label = if threshold == "positive"
+          label = if threshold == "very positive"
+                    "Very High Satisfaction"
+                  elsif threshold == "positive"
                     "High Satisfaction"
                   elsif threshold == "neutral"
                     "Average Satisfaction"
-                  else
+                  elsif threshold == "negative"
                     "Low Satisfaction"
+                  else
+                    "Very Low Satisfaction"
                   end
 
           Result.new(result: result, threshold: threshold, label: label)
