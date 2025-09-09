@@ -68,23 +68,31 @@ module Glare
         end
       
         def label
-          @label ||= if score >= 0.8571
-            "Excellent"
-          elsif score >= 0.5714
-            "Average"
-          else
-            "Low"
-          end
+          @label ||= if score > 0.9
+                       "Very Excellent"
+                     elsif score > 0.7
+                       "Excellent"
+                     elsif score > 0.5
+                       "Average"
+                     elsif score > 0.3
+                       "Fell Short"
+                     else
+                       "Failed"
+                     end
         end
 
         def threshold
-          @threshold ||= if label == "Excellent"
-            "positive"
-          elsif label == "Average"
-            "neutral"
-          else
-            "negative"
-          end
+          @threshold ||= if label == "Very Excellent"
+                           "very positive"
+                         elsif label == "Excellent"
+                           "positive"
+                         elsif label == "Average"
+                           "neutral"
+                         elsif label == "Fell Short"
+                           "negative"
+                         else
+                           "very negative"
+                         end
         end
       end
     end

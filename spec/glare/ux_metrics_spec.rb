@@ -1562,22 +1562,22 @@ RSpec.describe Glare::UxMetrics do
       expect(data.threshold).to eq("positive")
     end
 
-    it "assigns 'Average' label for score >= 0.5714 and < 0.8571" do
+    it "assigns 'Average' label for score >= 0.5 and < 0.7" do
       medium_score_data = {
-        choices: [6, 6, 5, 5, 5, 5, 4, 4]
+        choices: [6, 6, 5, 5, 4, 4, 4, 4]
       }
       data = Glare::UxMetrics::Effort::Parser.new(nps_question: medium_score_data).parse
       expect(data.label).to eq("Average")
       expect(data.threshold).to eq("neutral")
     end
 
-    it "assigns 'Low' label for score < 0.5714" do
+    it "assigns 'Failed' label for score < 0.3" do
       low_score_data = {
         choices: [3, 2, 2, 2, 2, 1, 1, 1]
       }
       data = Glare::UxMetrics::Effort::Parser.new(nps_question: low_score_data).parse
-      expect(data.label).to eq("Low")
-      expect(data.threshold).to eq("negative")
+      expect(data.label).to eq("Failed")
+      expect(data.threshold).to eq("very negative")
     end
   end
 
