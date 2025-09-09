@@ -1090,7 +1090,7 @@ RSpec.describe Glare::UxMetrics do
       expect(parser.parse.result).to be_within(0.001).of(expected_score)
     end
 
-    it "assigns 'High' label for score > 0.7" do
+    it "assigns 'Very High' label for score > 0.9" do
       high_score_data = {
         primary_clicks_count: 8,
         secondary_clicks_count: 2,
@@ -1103,8 +1103,8 @@ RSpec.describe Glare::UxMetrics do
         tertiary_clicks_count: high_score_data[:tertiary_clicks_count],
         total_clicks_count: high_score_data[:total_clicks_count]
       ).parse
-      expect(parser.label).to eq("High")
-      expect(parser.threshold).to eq("positive")
+      expect(parser.label).to eq("Very High")
+      expect(parser.threshold).to eq("very positive")
     end
 
     it "assigns 'Avg' label for score >= 0.5 and <= 0.7" do
@@ -1137,7 +1137,7 @@ RSpec.describe Glare::UxMetrics do
         tertiary_clicks_count: low_score_data[:tertiary_clicks_count],
         total_clicks_count: low_score_data[:total_clicks_count]
       ).parse
-      expect(parser.label).to eq("Low")
+      expect(parser.label).to eq("Fell Short")
       expect(parser.threshold).to eq("negative")
     end
   end

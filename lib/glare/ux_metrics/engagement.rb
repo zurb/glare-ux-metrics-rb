@@ -33,21 +33,29 @@ module Glare
 
           result = primary_score + secondary_score + tertiary_score
 
-          label = if result > 0.7
-                    "High"
-                  elsif result >= 0.5
-                    "Avg"
-                  else
-                    "Low"
-                  end
-
-          threshold = if label == "High"
+          threshold = if result > 0.9
+                        "very positive"
+                      elsif result > 0.7
                         "positive"
-                      elsif label == "Avg"
+                      elsif result > 0.5
                         "neutral"
-                      else
+                      elsif result > 0.3
                         "negative"
+                      else
+                        "very negative"
                       end
+
+          label = if threshold == "very positive"
+                    "Very High"
+                  elsif threshold == "positive"
+                    "High"
+                  elsif threshold == "neutral"
+                    "Avg"
+                  elsif threshold == "negative"
+                    "Fell Short"
+                  elsif threshold == "very negative"
+                    "Failed"
+                  end
 
           Result.new(result: result, threshold: threshold, label: label)
         end
