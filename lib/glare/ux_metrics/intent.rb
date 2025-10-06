@@ -46,7 +46,7 @@ module Glare
         end
 
         def threshold
-          @threshold ||= if result > 0.9
+          @threshold ||= if result >= 0.9
                            "very positive"
                          elsif result >= 0.7
                            "positive"

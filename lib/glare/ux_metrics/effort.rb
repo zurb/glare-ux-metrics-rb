@@ -68,13 +68,13 @@ module Glare
         end
       
         def label
-          @label ||= if score > 0.9
+          @label ||= if score >= 0.9
                        "Very Excellent"
-                     elsif score > 0.7
+                     elsif score >= 0.7
                        "Excellent"
-                     elsif score > 0.5
+                     elsif score >= 0.5
                        "Average"
-                     elsif score > 0.3
+                     elsif score >= 0.3
                        "Fell Short"
                      else
                        "Failed"
