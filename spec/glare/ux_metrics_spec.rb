@@ -1036,18 +1036,14 @@ RSpec.describe Glare::UxMetrics do
   describe Glare::UxMetrics::Engagement do
     let(:data) do
       {
-        primary_clicks_count: 6,
-        secondary_clicks_count: 2,
-        tertiary_clicks_count: 2,
+        hotspot_clicks_count: 8,
         total_clicks_count: 12
       }
     end
 
     it "validates valid engagement data" do
       parser = Glare::UxMetrics::Engagement::Parser.new(
-        primary_clicks_count: data[:primary_clicks_count],
-        secondary_clicks_count: data[:secondary_clicks_count],
-        tertiary_clicks_count: data[:tertiary_clicks_count],
+        hotspot_clicks_count: data[:hotspot_clicks_count],
         total_clicks_count: data[:total_clicks_count]
       )
       expect(parser.valid?).to eq(true)
@@ -1055,9 +1051,7 @@ RSpec.describe Glare::UxMetrics do
 
     it "invalidates invalid engagement data" do
       parser = Glare::UxMetrics::Engagement::Parser.new(
-        primary_clicks_count: "not a number",
-        secondary_clicks_count: 2,
-        tertiary_clicks_count: 2,
+        hotspot_clicks_count: "not a number",
         total_clicks_count: 12
       )
       expect(parser.valid?).to eq(false)
@@ -1065,9 +1059,7 @@ RSpec.describe Glare::UxMetrics do
 
     it "returns valid data" do
       parser = Glare::UxMetrics::Engagement::Parser.new(
-        primary_clicks_count: data[:primary_clicks_count],
-        secondary_clicks_count: data[:secondary_clicks_count],
-        tertiary_clicks_count: data[:tertiary_clicks_count],
+        hotspot_clicks_count: data[:hotspot_clicks_count],
         total_clicks_count: data[:total_clicks_count]
       ).parse
       expect(parser.result.is_a?(Float) && parser.label.is_a?(String) && parser.threshold.is_a?(String)).to eq(true)
@@ -1075,32 +1067,23 @@ RSpec.describe Glare::UxMetrics do
 
     it "calculates score correctly" do
       parser = Glare::UxMetrics::Engagement::Parser.new(
-        primary_clicks_count: data[:primary_clicks_count],
-        secondary_clicks_count: data[:secondary_clicks_count],
-        tertiary_clicks_count: data[:tertiary_clicks_count],
+        hotspot_clicks_count: data[:hotspot_clicks_count],
         total_clicks_count: data[:total_clicks_count]
       )
 
       # Calculate expected score
-      primary_score = (data[:primary_clicks_count] / data[:total_clicks_count].to_f) * Glare::UxMetrics::Engagement::Parser::PRIMARY_WEIGHT
-      secondary_score = (data[:secondary_clicks_count] / data[:total_clicks_count].to_f) * Glare::UxMetrics::Engagement::Parser::SECONDARY_WEIGHT
-      tertiary_score = (data[:tertiary_clicks_count] / data[:total_clicks_count].to_f) * Glare::UxMetrics::Engagement::Parser::TERTIARY_WEIGHT
-      expected_score = primary_score + secondary_score + tertiary_score
+      expected_score = data[:hotspot_clicks_count] / data[:total_clicks_count].to_f
 
       expect(parser.parse.result).to be_within(0.001).of(expected_score)
     end
 
     it "assigns 'Very High' label for score > 0.9" do
       high_score_data = {
-        primary_clicks_count: 8,
-        secondary_clicks_count: 2,
-        tertiary_clicks_count: 0,
-        total_clicks_count: 10
+        hotspot_clicks_count: 95,
+        total_clicks_count: 100
       }
       parser = Glare::UxMetrics::Engagement::Parser.new(
-        primary_clicks_count: high_score_data[:primary_clicks_count],
-        secondary_clicks_count: high_score_data[:secondary_clicks_count],
-        tertiary_clicks_count: high_score_data[:tertiary_clicks_count],
+        hotspot_clicks_count: high_score_data[:hotspot_clicks_count],
         total_clicks_count: high_score_data[:total_clicks_count]
       ).parse
       expect(parser.label).to eq("Very High")
@@ -1109,15 +1092,11 @@ RSpec.describe Glare::UxMetrics do
 
     it "assigns 'Avg' label for score >= 0.5 and <= 0.7" do
       avg_score_data = {
-        primary_clicks_count: 5,
-        secondary_clicks_count: 2,
-        tertiary_clicks_count: 0,
+        hotspot_clicks_count: 6,
         total_clicks_count: 10
       }
       parser = Glare::UxMetrics::Engagement::Parser.new(
-        primary_clicks_count: avg_score_data[:primary_clicks_count],
-        secondary_clicks_count: avg_score_data[:secondary_clicks_count],
-        tertiary_clicks_count: avg_score_data[:tertiary_clicks_count],
+        hotspot_clicks_count: avg_score_data[:hotspot_clicks_count],
         total_clicks_count: avg_score_data[:total_clicks_count]
       ).parse
       expect(parser.label).to eq("Avg")
@@ -1126,15 +1105,11 @@ RSpec.describe Glare::UxMetrics do
 
     it "assigns 'Low' label for score < 0.5" do
       low_score_data = {
-        primary_clicks_count: 2,
-        secondary_clicks_count: 1,
-        tertiary_clicks_count: 1,
+        hotspot_clicks_count: 4,
         total_clicks_count: 10
       }
       parser = Glare::UxMetrics::Engagement::Parser.new(
-        primary_clicks_count: low_score_data[:primary_clicks_count],
-        secondary_clicks_count: low_score_data[:secondary_clicks_count],
-        tertiary_clicks_count: low_score_data[:tertiary_clicks_count],
+        hotspot_clicks_count: low_score_data[:hotspot_clicks_count],
         total_clicks_count: low_score_data[:total_clicks_count]
       ).parse
       expect(parser.label).to eq("Fell Short")

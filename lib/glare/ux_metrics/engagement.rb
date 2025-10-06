@@ -5,21 +5,15 @@ module Glare
 
     module Engagement
       class Parser
-        PRIMARY_WEIGHT = 1.0
-        SECONDARY_WEIGHT = 1.0
-        TERTIARY_WEIGHT = 1.0
-
-        def initialize(primary_clicks_count:, secondary_clicks_count:, tertiary_clicks_count:, total_clicks_count:)
-          @primary_clicks_count = primary_clicks_count
-          @secondary_clicks_count = secondary_clicks_count
-          @tertiary_clicks_count = tertiary_clicks_count
+        def initialize(hotspot_clicks_count:, total_clicks_count:)
+          @hotspot_clicks_count = hotspot_clicks_count
           @total_clicks_count = total_clicks_count
         end
 
-        attr_reader :primary_clicks_count, :secondary_clicks_count, :tertiary_clicks_count, :total_clicks_count
+        attr_reader :hotspot_clicks_count, :total_clicks_count
 
         def valid?
-          return false unless primary_clicks_count.is_a?(Integer) && secondary_clicks_count.is_a?(Integer) && tertiary_clicks_count.is_a?(Integer) && total_clicks_count.is_a?(Integer)
+          return false unless hotspot_clicks_count.is_a?(Integer) && total_clicks_count.is_a?(Integer)
 
           true
         end
@@ -27,11 +21,7 @@ module Glare
         def parse
           validate!
 
-          primary_score = (primary_clicks_count / total_clicks_count.to_f) * PRIMARY_WEIGHT
-          secondary_score = (secondary_clicks_count / total_clicks_count.to_f) * SECONDARY_WEIGHT
-          tertiary_score = (tertiary_clicks_count / total_clicks_count.to_f) * TERTIARY_WEIGHT
-
-          result = primary_score + secondary_score + tertiary_score
+          result = hotspot_clicks_count / total_clicks_count.to_f
 
           threshold = if result > 0.9
                         "very positive"
@@ -72,9 +62,7 @@ module Glare
 
           def correct_data
             {
-              primary_clicks_count: "integer",
-              secondary_clicks_count: "integer",
-              tertiary_clicks_count: "integer",
+              hotspot_clicks_count: "integer",
               total_clicks_count: "integer",
             }.to_json
           end
@@ -84,9 +72,7 @@ module Glare
 
         def data
           @data ||= {
-            primary_clicks_count: primary_clicks_count,
-            secondary_clicks_count: secondary_clicks_count,
-            tertiary_clicks_count: tertiary_clicks_count,
+            hotspot_clicks_count: hotspot_clicks_count,
             total_clicks_count: total_clicks_count
           }
         end
