@@ -64,7 +64,7 @@ module Glare
         end
 
         def score
-          @score = nps_question[:choices].sum / nps_question[:choices].count.to_f / 7
+          @score = (nps_question[:choices].sum / nps_question[:choices].count.to_f / 7).round(2)
         end
       
         def label

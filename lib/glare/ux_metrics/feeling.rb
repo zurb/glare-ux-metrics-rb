@@ -47,7 +47,7 @@ module Glare
         end
 
         def result
-          @result ||= positive_sentiment / total_sentiment.to_f
+          @result ||= (positive_sentiment / total_sentiment.to_f).round(2)
         end
 
         def threshold

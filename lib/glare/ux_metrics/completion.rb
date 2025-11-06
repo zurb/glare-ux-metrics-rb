@@ -24,7 +24,7 @@ module Glare
         end
          
         def result
-          @result ||= direct_success + indirect_success
+          @result ||= (direct_success + indirect_success).round(2)
         end
 
         def threshold

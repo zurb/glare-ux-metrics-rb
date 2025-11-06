@@ -356,7 +356,7 @@ RSpec.describe Glare::UxMetrics do
                         (comprehension_data[:understood_a_little] * 2) +
                         (comprehension_data[:did_not_understand] * 1)) / 4
 
-      expect(data.result).to be_within(0.001).of(expected_result)
+      expect(data.result).to eq(expected_result.round(2))
     end
 
     it "assigns 'High' label for result > 0.7" do
@@ -731,7 +731,7 @@ RSpec.describe Glare::UxMetrics do
         ).parse
 
         expect(data.threshold).to eq("positive")
-        expect(data.label).to eq("Good")
+        expect(data.label).to eq("High")
       end
 
       it "assigns 'Neutral' label for neutral threshold" do
@@ -760,7 +760,7 @@ RSpec.describe Glare::UxMetrics do
         ).parse
 
         expect(data.threshold).to eq("neutral")
-        expect(data.label).to eq("Neutral")
+        expect(data.label).to eq("Avg")
       end
 
       it "assigns 'Bad' label for negative threshold" do
@@ -788,8 +788,8 @@ RSpec.describe Glare::UxMetrics do
           questions: [low_sentiment, low_likert]
         ).parse
 
-        expect(data.threshold).to eq("negative")
-        expect(data.label).to eq("Bad")
+        expect(data.threshold).to eq("very negative")
+        expect(data.label).to eq("Very Low")
       end
     end
 
@@ -1275,8 +1275,8 @@ RSpec.describe Glare::UxMetrics do
         }
       ]
       parser = Glare::UxMetrics::Success::Parser.new(questions: high_score_data).parse
-      expect(parser.label).to eq("Good")
-      expect(parser.threshold).to eq("positive")
+      expect(parser.label).to eq("Very Good")
+      expect(parser.threshold).to eq("very positive")
     end
 
     it "assigns 'Avg' label for average scores" do
@@ -1431,7 +1431,7 @@ RSpec.describe Glare::UxMetrics do
       parser = Glare::UxMetrics::Intent::Parser.new(choices: intent_data)
       # Expected score = (primary * 3 + secondary * 2 + tertiary) / 3
       expected_score = (0.3 * 3 + 0.2 * 2 + 0.1) / 3
-      expect(parser.result).to be_within(0.001).of(expected_score)
+      expect(parser.result).to eq(expected_score.round(2))
     end
 
     it "assigns 'High Intent' label for score > 0.6" do
@@ -1475,7 +1475,7 @@ RSpec.describe Glare::UxMetrics do
       }
       data = Glare::UxMetrics::Intent::Parser.new(choices: string_data)
       expect(data.valid?).to eq(true)
-      expect(data.result).to be_within(0.001).of((3.0 * 3 + 2.0 * 2 + 1.0) / 3)
+      expect(data.result).to eq(((3.0 * 3 + 2.0 * 2 + 1.0) / 3).round(2))
     end
   end
 
@@ -1523,9 +1523,9 @@ RSpec.describe Glare::UxMetrics do
 
     it "calculates score correctly" do
       parser = Glare::UxMetrics::Effort::Parser.new(nps_question: effort_data)
-      # Expected score = sum of choices / count of choices / 5
+      # Expected score = sum of choices / count of choices / 7
       expected_score = effort_data[:choices].sum / effort_data[:choices].count.to_f / 7
-      expect(parser.parse.result).to be_within(0.001).of(expected_score)
+      expect(parser.parse.result).to eq(expected_score.round(2))
     end
 
     it "assigns 'Excellent' label for score >= 0.8571" do

@@ -76,7 +76,7 @@ module Glare
         def score
           @score ||= begin
             totals = questions.map { |question| question[:average_primary_percentage] + question[:average_secondary_percentage] + question[:average_tertiary_percentage] }
-            totals.sum / totals.size
+            (totals.sum / totals.size).round(2)
           end
         end
 

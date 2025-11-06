@@ -47,9 +47,9 @@ module Glare
         end
 
         def result
-          @result ||= total_positive_sentiment.to_f /
+          @result ||= (total_positive_sentiment.to_f /
                         (total_positive_sentiment.to_f + total_negative_sentiment.to_f) *
-                        (1 - penalty)
+                        (1 - penalty)).round(2)
         end
 
         def threshold
@@ -120,7 +120,7 @@ module Glare
 
         # A percentage. 0.0 to 1.0. The higher the penalty, the more negative sentiment is penalized.
         def penalty
-          @penalty ||= if total_negative_sentiment >= 0.1
+          @penalty ||= if total_negative_sentiment > 0.1
                          total_negative_sentiment
                        else
                          0.0

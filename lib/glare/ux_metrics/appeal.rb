@@ -49,11 +49,11 @@ module Glare
 
         def result
           @result ||= begin
-            (choices[:very_satisfied].to_f * 5 +
+            ((choices[:very_satisfied].to_f * 5 +
             choices[:somewhat_satisfied].to_f * 4 +
             choices[:neutral].to_f * 3 +
             choices[:somewhat_dissatisfied].to_f * 2 +
-            choices[:very_dissatisfied].to_f) / 5
+            choices[:very_dissatisfied].to_f) / 5).round(2)
           end
         end
 

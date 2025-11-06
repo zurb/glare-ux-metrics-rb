@@ -30,11 +30,11 @@ module Glare
         def parse
           validate!
 
-          result = choices[:very_satisfied].to_f +
+          result = (choices[:very_satisfied].to_f +
                    choices[:somewhat_satisfied].to_f -
                    choices[:neutral].to_f -
                    choices[:somewhat_dissatisfied].to_f -
-                   choices[:very_dissatisfied].to_f
+                   choices[:very_dissatisfied].to_f).round(2)
 
          threshold = if result >= 0.9
                        "very positive"

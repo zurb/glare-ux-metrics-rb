@@ -58,7 +58,7 @@ module Glare
             d = choices[:fell_short_of_expectations] * 2
             e = choices[:failed_expectations] * 1
 
-            (a + b + c + d + e) / 5
+            ((a + b + c + d + e) / 5).round(2)
           end
         end
 

@@ -44,7 +44,7 @@ module Glare
         end
 
         def result
-          @result ||= (loyalty_score + market_score + npa_score) / 3.0
+          @result ||= ((loyalty_score + market_score + npa_score) / 3.0).round(2)
         end
 
         def threshold

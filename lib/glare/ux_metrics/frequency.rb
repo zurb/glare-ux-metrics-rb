@@ -36,11 +36,11 @@ module Glare
         end
 
         def result
-          @result ||= ((choices[:very_frequently].to_f * 5) +
+          @result ||= (((choices[:very_frequently].to_f * 5) +
                       (choices[:frequently].to_f * 4) +
                       (choices[:occasionally].to_f * 3) +
                       (choices[:rarely].to_f * 2) +
-                      choices[:very_frequently].to_f) / 5
+                      choices[:very_frequently].to_f) / 5).round(2)
         end
 
         def threshold

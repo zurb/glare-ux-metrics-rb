@@ -27,7 +27,7 @@ module Glare
         end
 
         def result
-          @result ||= choices[:very_satisfied].to_f + choices[:somewhat_satisfied].to_f
+          @result ||= (choices[:very_satisfied].to_f + choices[:somewhat_satisfied].to_f).round(2)
         end
 
         def threshold

@@ -27,10 +27,10 @@ module Glare
         end
 
         def result
-          @result ||= ((choices[:understood_very_well].to_f * 4) +
+          @result ||= (((choices[:understood_very_well].to_f * 4) +
                         (choices[:understood_most_of_it].to_f * 3) +
                         (choices[:understood_a_little].to_f * 2) +
-                        (choices[:did_not_understand].to_f * 1)) / 4
+                        (choices[:did_not_understand].to_f * 1)) / 4).round(2)
         end
 
         def threshold

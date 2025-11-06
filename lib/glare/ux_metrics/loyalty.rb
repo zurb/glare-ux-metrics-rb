@@ -58,7 +58,7 @@ module Glare
         end
 
         def result
-          @result ||= ((nps_score * 100.0) + 100) / 200.0
+          @result ||= (((nps_score * 100.0) + 100) / 200.0).round(2)
         end
 
         def nps_score

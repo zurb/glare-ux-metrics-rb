@@ -41,7 +41,7 @@ module Glare
             secondary = choices[:secondary].to_f * 2
             tertiary = choices[:tertiary].to_f
 
-            (primary + secondary + tertiary) / 3
+            ((primary + secondary + tertiary) / 3).round(2)
           end
         end
 

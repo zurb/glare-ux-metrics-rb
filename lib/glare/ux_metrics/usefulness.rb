@@ -74,7 +74,7 @@ module Glare
         end
 
         def score
-          @score ||= (questions.map { |question| question_score(question) }.sum / questions.size) / 100
+          @score ||= ((questions.map { |question| question_score(question) }.sum / questions.size) / 100).round(2)
         end
 
         def question_score(question)

@@ -42,22 +42,30 @@ module Glare
             sentiment_score = calculate_sentiment_question(sentiment)
             likert_score = calculate_likert_question(likert)
 
-            result = (sentiment_score + likert_score) / 2
+            result = ((sentiment_score + likert_score) / 2).round(2)
 
-            threshold = if result >= 0.8
+            threshold = if result >= 0.9
+                          "very positive"
+                        elsif result >= 0.7
                           "positive"
-                        elsif result >= 0.6
+                        elsif result >= 0.5
                           "neutral"
-                        else
+                        elsif result >= 0.3
                           "negative"
+                        else
+                          "very negative"
                         end
 
-            label = if threshold == "positive"
-                      "Good"
+            label = if threshold == "very positive"
+                      "Very High"
+                    elsif threshold == "positive"
+                      "High"
                     elsif threshold == "neutral"
-                      "Neutral"
+                      "Avg"
+                    elsif threshold == "negative"
+                      "Low"
                     else
-                      "Bad"
+                      "Very Low"
                     end
 
             Result.new(result: result, threshold: threshold, label: label)
