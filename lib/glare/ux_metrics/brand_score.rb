@@ -79,6 +79,7 @@ module Glare
           {
             nps: nps_score,
             market_recognition: market_score,
+            nps_positive_impressions: nps_positive_impressions,
             npa: npa_score,
             loyalty: loyalty_score,
           }
@@ -89,7 +90,15 @@ module Glare
         end
 
         def nps_score
-          @nps_score ||= nps_question[0..1].sum - nps_question[4..10].sum
+          @nps_score ||= nps_positive_impressions - nps_negative_impressions
+        end
+
+        def nps_positive_impressions
+          @nps_positive_impressions ||= nps_question[0..1].sum
+        end
+
+        def nps_negative_impressions
+          @nps_negative_impressions ||= nps_question[4..10].sum
         end
 
         def market_score
