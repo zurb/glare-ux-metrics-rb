@@ -86,7 +86,7 @@ module Glare
                 complicated: "string|integer|float",
                 confusing: "string|integer|float",
                 overwhelming: "string|integer|float",
-                annoying: "string|integer|float",
+                annoying: "string|integer|float"
               }
             }.to_json
           end
@@ -120,11 +120,19 @@ module Glare
 
         # A percentage. 0.0 to 1.0. The higher the penalty, the more negative sentiment is penalized.
         def penalty
-          @penalty ||= if total_negative_sentiment > 0.1
+          @penalty ||= if any_negative_sentiment_high?
                          total_negative_sentiment
                        else
                          0.0
                        end
+        end
+
+        def any_negative_sentiment_high?
+          negative_choices.any? { |_, value| value.to_f > 0.1 }
+        end
+
+        def negative_choices
+          choices.slice(:complicated, :confusing, :overwhelming, :annoying)
         end
       end
     end
